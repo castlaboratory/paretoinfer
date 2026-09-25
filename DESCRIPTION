@@ -1,0 +1,20 @@
+Package: paretoinfer
+Title: Sequential Identification of Approximately Pareto-Optimal
+        Alternatives under Noise
+Version: 0.0.0.9000
+Authors@R: person("André", "Leite", , "leite@castlab.org", role = c("aut", "cre"))
+Description: Sequential elimination and identification of
+ epsilon-Pareto-optimal alternatives among a finite set with noisy,
+ correlated objectives. Simultaneous confidence sequences for objective
+ differences, plausible Pareto sets, certified dominance and adaptive
+ choice of the next evaluation.
+License: GPL (>= 3)
+URL: https://github.com/castlaboratory/paretoinfer
+BugReports: https://github.com/castlaboratory/paretoinfer/issues
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 8.0.0
+Suggests: testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports: seqbench
+Remotes: castlaboratory/seqbench
