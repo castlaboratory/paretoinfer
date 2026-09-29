@@ -17,11 +17,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: André Leite \email{leite@castlab.org}
+\strong{Maintainer}: André Leite \email{leite@castlab.org} (\href{https://orcid.org/0000-0002-4718-9766}{ORCID})
 
 Authors:
 \itemize{
-  \item André Leite \email{leite@castlab.org}
+  \item André Leite \email{leite@castlab.org} (\href{https://orcid.org/0000-0002-4718-9766}{ORCID})
 }
 
 }

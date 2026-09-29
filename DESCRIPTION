@@ -2,7 +2,8 @@ Package: paretoinfer
 Title: Sequential Identification of Approximately Pareto-Optimal
         Alternatives under Noise
 Version: 0.0.0.9000
-Authors@R: person("André", "Leite", , "leite@castlab.org", role = c("aut", "cre"))
+Authors@R: person("André", "Leite", , "leite@castlab.org", role = c("aut", "cre"),
+                  comment = c(ORCID = "0000-0002-4718-9766"))
 Description: Sequential elimination and identification of
  epsilon-Pareto-optimal alternatives among a finite set with noisy,
  correlated objectives. Simultaneous confidence sequences for objective
