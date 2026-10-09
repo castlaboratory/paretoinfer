@@ -60,6 +60,12 @@ choose_next_evaluation(state)
 pareto_report(state)
 ```
 
+## How it works
+
+<img src="man/figures/architecture.svg" alt="Architecture of paretoinfer: design and state, sets with certificates, sampling rule and outputs" width="100%" />
+
+<img src="man/figures/workflow.svg" alt="Workflow of paretoinfer: choose, evaluate, update and compute the sets until every alternative is certified" width="100%" />
+
 ## Related software
 
 `paretoinfer` does not do multi-objective *optimisation* over a continuous
