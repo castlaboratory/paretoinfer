@@ -75,3 +75,15 @@ test_that("the guarantee holds by Monte Carlo: a true frontier alternative is ne
   }
   expect_equal(bad, 0L)
 })
+
+test_that("every anytime-valid boundary of seqbench works as the engine", {
+  for (b in c("betting", "hoeffding", "empirical_bernstein")) {
+    d <- pareto_design(alternatives = 2, objectives = 2, bounds = c(-1, 1), boundary = b, epsilon = 0.1)
+    st <- update_objectives(initialize_pareto(d),
+                            data.frame(alternative = c("A1", "A2", "A1"), y1 = c(-0.5, 0.5, -0.4), y2 = c(-0.3, 0.9, -0.2)))
+    expect_true(all(is.finite(st$lower)), info = b)
+    expect_true(all(st$lower >= -1 & st$upper <= 1), info = b)
+    expect_equal(unname(st$n["A1"]), 2L)
+    expect_null(names(st$estimate["A1", "y1"]))
+  }
+})

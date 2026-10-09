@@ -21,5 +21,6 @@ First submission.
   the Description. The Monte Carlo test of the guarantee is skipped on CRAN
   (`skip_on_cran()`); the deterministic tests of the certificate logic run
   everywhere.
-* Examples and the vignette run in well under a minute; no example is wrapped in
-  `\dontrun{}`.
+* Examples run in under two seconds each; no example is wrapped in `\dontrun{}`.
+  The four vignettes together take about two minutes to build (Monte Carlo
+  illustrations with small replication counts).

@@ -68,7 +68,7 @@ update_objectives <- function(state, evaluations) {
   for (r in seq_len(nrow(ev))) {
     k <- ev$alternative[r]
     for (i in seq_len(d$m)) {
-      obj <- d$objectives[i]; b <- d$bounds[, i]
+      obj <- d$objectives[i]; b <- unname(d$bounds[, i])
       x <- (ev[[obj]][r] - b[1]) / (b[2] - b[1])
       st <- seqbench::boundary_update(state$kernels[[k, obj]], x)
       state$kernels[[k, obj]] <- st
