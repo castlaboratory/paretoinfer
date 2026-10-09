@@ -1,0 +1,108 @@
+---
+title: "Heterogeneous cost and budgets"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Heterogeneous cost and budgets}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7, fig.height = 5)
+```
+
+```{r setup}
+library(paretoinfer)
+```
+
+Evaluating an alternative is rarely free, and rarely equally expensive across
+alternatives: a heuristic with more restarts, a model with more parameters, a
+field trial at a remote site. The design records a cost per alternative, the
+next-evaluation rule divides uncertainty by cost, and a budget stops the
+identification with an honest "inconclusive" when it runs out.
+
+```{r problem}
+means <- rbind(A1 = c(0.15, 0.70), A2 = c(0.40, 0.40), A3 = c(0.70, 0.15),
+               A4 = c(0.42, 0.43), A5 = c(0.60, 0.60), A6 = c(0.30, 0.80))
+simulate <- function(alternative, n, h = 0.1) {
+  mu <- means[alternative, ]
+  data.frame(y1 = runif(n, mu[1] - h, mu[1] + h), y2 = runif(n, mu[2] - h, mu[2] + h))
+}
+```
+
+## A budget that runs out
+
+`A5` and `A6` cost five units per evaluation, the others one. With a budget
+of 400 units the procedure stops before anything is certified.
+
+```{r budget}
+design <- pareto_design(alternatives = rownames(means), objectives = c("y1", "y2"),
+                        bounds = c(0, 1), alpha = 0.05, epsilon = 0.05,
+                        cost = c(1, 1, 1, 1, 5, 5), budget = 400)
+set.seed(2)
+state <- pareto_run(design, simulate, batch = 5, initial = 5)
+state
+plausible_pareto_set(state)$table[, c("alternative", "status", "n_evaluations", "cost")]
+```
+
+The expensive alternatives received only their initial evaluations: the rule
+preferred to narrow the cheap boxes. The outcome is inconclusive, with the
+estimated frontier as the point estimate and every alternative still
+plausible. The report says so and records the budget.
+
+```{r report}
+pareto_report(state)
+```
+
+## Continuing with a larger budget
+
+A stopped identification accepts no further evaluations, so that a report
+always describes a design that was fixed in advance. To continue, a new
+design with a larger budget is run; the guarantee is per identification, and
+the sampling of the first run cannot be reused without a new design that
+includes it.
+
+```{r larger}
+design2 <- pareto_design(alternatives = rownames(means), objectives = c("y1", "y2"),
+                         bounds = c(0, 1), alpha = 0.05, epsilon = 0.05,
+                         cost = c(1, 1, 1, 1, 5, 5), budget = 4000)
+set.seed(2)
+state2 <- pareto_run(design2, simulate, batch = 5, initial = 5)
+glance(state2)[, c("n_evaluations", "total_cost", "n_dominated", "identified", "stopping_reason")]
+plausible_pareto_set(state2)$table[, c("alternative", "status", "dominated_by", "n_evaluations", "cost")]
+```
+
+`A5` and `A6` were certified dominated with few evaluations: a clearly
+dominated alternative needs little evidence, whatever it costs.
+
+## Driving the loop by hand
+
+When evaluations come from outside R, or when the stopping rule is not the
+design's budget but a judgement call, the loop is written by the user.
+`choose_next_evaluation()` proposes, `update_objectives()` consumes, and
+`plausible_pareto_set()` can be inspected at any time without invalidating
+anything.
+
+```{r manual}
+design3 <- pareto_design(alternatives = rownames(means), objectives = c("y1", "y2"),
+                         bounds = c(0, 1), alpha = 0.05, epsilon = 0.05, cost = c(1, 1, 1, 1, 5, 5))
+set.seed(3)
+state3 <- initialize_pareto(design3)
+for (k in design3$alternatives) {
+  ev <- simulate(k, 5); ev$alternative <- k
+  state3 <- update_objectives(state3, ev)
+}
+repeat {
+  sets <- plausible_pareto_set(state3)
+  if (sets$identified || state3$total_cost >= 1500) break
+  nxt <- choose_next_evaluation(state3)
+  ev <- simulate(nxt$alternative, 5); ev$alternative <- nxt$alternative
+  state3 <- update_objectives(state3, ev)
+}
+state3
+```
+
+Stopping by hand at any time keeps every certificate valid: the guarantee is
+simultaneous over time, so no choice of when to look or when to stop can
+break it. What the user gives up by stopping early is only the size of the
+plausible set.

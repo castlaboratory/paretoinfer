@@ -1,0 +1,97 @@
+---
+title: "Frontier shapes and near-ties"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Frontier shapes and near-ties}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7, fig.height = 5)
+```
+
+```{r setup}
+library(paretoinfer)
+```
+
+Identification with confidence boxes does not care whether the frontier is
+convex: a certificate compares two boxes, objective by objective. This
+vignette runs the procedure on the frontier shapes that trouble scalarised
+methods (weighted sums find only the convex hull) and on near-ties, and shows
+what the three sets look like in each case.
+
+```{r helpers}
+make_sim <- function(means, h = 0.08) {
+  function(alternative, n) {
+    mu <- means[alternative, ]
+    data.frame(y1 = runif(n, mu[1] - h, mu[1] + h), y2 = runif(n, mu[2] - h, mu[2] + h))
+  }
+}
+run <- function(means, epsilon = 0.04, seed = 1, ...) {
+  d <- pareto_design(alternatives = rownames(means), objectives = c("y1", "y2"),
+                     bounds = c(0, 1), alpha = 0.05, epsilon = epsilon, max_evaluations = 4000, ...)
+  set.seed(seed)
+  pareto_run(d, make_sim(means), batch = 5, initial = 5)
+}
+```
+
+## Convex frontier
+
+```{r convex}
+convex <- rbind(A = c(0.10, 0.80), B = c(0.25, 0.50), C = c(0.45, 0.30), D = c(0.80, 0.15),
+                E = c(0.50, 0.60), F = c(0.70, 0.45))
+s <- run(convex)
+plausible_pareto_set(s)
+autoplot(s)
+```
+
+## Concave (non-convex) frontier
+
+The middle alternative `C` is Pareto-optimal but lies above the segment that
+joins its neighbours, so no weighted sum of the objectives would select it.
+The boxes certify it without difficulty.
+
+```{r concave}
+concave <- rbind(A = c(0.10, 0.80), B = c(0.30, 0.65), C = c(0.45, 0.55), D = c(0.60, 0.30),
+                 E = c(0.80, 0.10), F = c(0.55, 0.70))
+s <- run(concave)
+plausible_pareto_set(s)$table[, c("alternative", "status", "dominated_by", "n_evaluations")]
+autoplot(s)
+```
+
+## Disconnected frontier
+
+Two clusters of optimal alternatives with a dominated gap between them.
+
+```{r disconnected}
+disconnected <- rbind(A = c(0.10, 0.85), B = c(0.15, 0.75), C = c(0.70, 0.20), D = c(0.80, 0.12),
+                      E = c(0.45, 0.55), F = c(0.40, 0.65))
+s <- run(disconnected)
+plausible_pareto_set(s)$table[, c("alternative", "status", "dominated_by", "n_evaluations")]
+autoplot(s)
+```
+
+## Near-ties
+
+Two alternatives within 0.02 of each other on both objectives, with a
+tolerance of 0.04: they are an `epsilon`-tie. The procedure keeps the first
+in design order as the representative and certifies the other as dominated by
+it; the report names the tie. With a tolerance below the gap the two could
+not be separated and the identification would run to its budget.
+
+```{r ties}
+ties <- rbind(A = c(0.20, 0.60), B = c(0.21, 0.61), C = c(0.60, 0.20), D = c(0.50, 0.50))
+s <- run(ties, epsilon = 0.04)
+plausible_pareto_set(s)$table[, c("alternative", "status", "dominated_by", "n_evaluations")]
+s_tight <- run(ties, epsilon = 0.005)
+glance(s_tight)[, c("n_evaluations", "n_uncertain", "stopping_reason")]
+```
+
+## Reading the plots
+
+In every plot the boxes are the simultaneous confidence boxes, the colour is
+the status, and the orange step line joins the point estimates of the
+estimated frontier. A box that overlaps the region to the lower left of
+another box's corner cannot be certified dominated; a box entirely to the
+upper right of another one's upper-right corner (shifted by `epsilon`) is.

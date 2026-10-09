@@ -36,3 +36,9 @@ articles:
 - title: Get started
   navbar: ~
   contents: [paretoinfer]
+- title: Studies
+  navbar: Studies
+  contents: [guarantee-and-cost, frontier-shapes]
+- title: Practice
+  navbar: Practice
+  contents: [cost-and-budget]
