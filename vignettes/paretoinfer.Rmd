@@ -1,0 +1,136 @@
+---
+title: "Get started with paretoinfer"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Get started with paretoinfer}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7, fig.height = 5)
+```
+
+```{r setup}
+library(paretoinfer)
+```
+
+## The problem
+
+A finite set of alternatives (algorithm variants, designs, policies) is
+evaluated on several objectives through noisy simulation. With two objectives,
+an alternative is *dominated* when another is at least as good on both, and
+the *Pareto frontier* is the set of non-dominated alternatives. With noise, an
+alternative can look dominated purely by sampling error, and a frontier read
+off point estimates after a fixed number of runs carries no guarantee.
+
+`paretoinfer` treats the identification as a sequential experiment. It keeps
+one anytime-valid confidence sequence per alternative and objective (from the
+[seqbench](https://CRAN.R-project.org/package=seqbench) package), shares the
+error level `alpha` among them, and at any time reports three sets:
+
+* the **estimated frontier**, a point estimate;
+* the **plausible Pareto set**, the alternatives that cannot be certified as
+  dominated, with the subset that is **certified optimal**;
+* the **certified dominated** alternatives, each with the alternative that
+  dominates it.
+
+With probability at least `1 - alpha`, every certificate ever issued is true,
+whatever the stopping rule and whatever is evaluated next. Dominance is
+*epsilon-dominance*: `j` dominates `k` when it is at least as good as `k` up
+to a tolerance `epsilon` on every objective. A positive tolerance is what lets
+the procedure stop on near-ties.
+
+## A simulated problem
+
+Six alternatives with two objectives in [0, 1], both minimised. Three are on
+the true frontier, one is nearly tied with a frontier alternative, two are
+clearly dominated. Noise is uniform with half-width 0.1.
+
+```{r problem}
+means <- rbind(A1 = c(0.15, 0.70), A2 = c(0.40, 0.40), A3 = c(0.70, 0.15),
+               A4 = c(0.42, 0.43), A5 = c(0.60, 0.60), A6 = c(0.30, 0.80))
+simulate <- function(alternative, n) {
+  mu <- means[alternative, ]
+  data.frame(y1 = runif(n, mu[1] - 0.1, mu[1] + 0.1),
+             y2 = runif(n, mu[2] - 0.1, mu[2] + 0.1))
+}
+```
+
+## Design, run, read
+
+```{r run}
+design <- pareto_design(alternatives = rownames(means), objectives = c("y1", "y2"),
+                        bounds = c(0, 1), alpha = 0.05, epsilon = 0.05,
+                        max_evaluations = 3000)
+design
+set.seed(1)
+state <- pareto_run(design, simulate, batch = 5, initial = 5)
+state
+```
+
+The procedure evaluated every alternative five times, then repeatedly chose
+the most uncertain plausible alternative per unit cost, evaluated it five more
+times and updated, until every alternative was certified or the budget ran
+out.
+
+```{r sets}
+sets <- plausible_pareto_set(state)
+sets$table
+```
+
+`A4` sits within `epsilon = 0.05` of `A2` on both objectives, so it is
+certified dominated by `A2` under the tolerance; with `epsilon = 0` the two
+could not be separated and the procedure would run to its budget.
+
+## The picture is the guarantee
+
+`autoplot()` draws, for each alternative, the product of its two running
+intersections: a box that contains the true mean vector with the simultaneous
+guarantee. The boxes are what the certificates are read from; the step line is
+the estimated frontier, a point estimate.
+
+```{r plot}
+autoplot(state)
+```
+
+## Step by step
+
+The same identification can be driven by hand, for example when evaluations
+come from an external simulator or a cluster.
+
+```{r manual}
+state <- initialize_pareto(design)
+set.seed(2)
+for (k in design$alternatives) {
+  ev <- simulate(k, 5); ev$alternative <- k
+  state <- update_objectives(state, ev)
+}
+choose_next_evaluation(state, n = 3)
+```
+
+`choose_next_evaluation()` scores uncertain alternatives by the width of
+their confidence box per unit cost and never proposes a certified one. The
+rule is a heuristic; the validity of the certificates does not depend on it.
+
+## The report
+
+```{r report}
+pareto_report(state)
+glance(state)
+```
+
+## What the guarantee is and is not
+
+* It is a statement about certificates: certified dominated alternatives are
+  truly `epsilon`-dominated and certified optimal ones are truly not, all
+  simultaneously, with probability at least `1 - alpha`, at every time.
+* It is not a statement about the estimated frontier, which is a point
+  estimate, nor about the plausible set being small: with few evaluations the
+  plausible set is everything.
+* It needs the objectives of each evaluation to lie in the declared bounds and
+  to have, conditionally on the past, the alternative's mean. Dependence
+  between the objectives of one evaluation is allowed; so is any adaptive
+  choice of what to evaluate next.
+* The level is shared by a union bound over the `K * m` confidence sequences,
+  which is conservative; the price is evaluations, not validity.

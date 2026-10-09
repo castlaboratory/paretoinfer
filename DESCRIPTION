@@ -2,20 +2,43 @@ Package: paretoinfer
 Title: Sequential Identification of Approximately Pareto-Optimal
         Alternatives under Noise
 Version: 0.0.0.9000
-Authors@R: person("André", "Leite", , "leite@castlab.org", role = c("aut", "cre"),
-                  comment = c(ORCID = "0000-0002-4718-9766"))
-Description: Sequential elimination and identification of
- epsilon-Pareto-optimal alternatives among a finite set with noisy,
- correlated objectives. Simultaneous confidence sequences for objective
- differences, plausible Pareto sets, certified dominance and adaptive
- choice of the next evaluation.
+Authors@R: c(
+    person("André", "Leite", , "leite@castlab.org", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-4718-9766")),
+    person("Raydonal", "Ospina", , "raydonal@castlab.org", role = "aut",
+           comment = c(ORCID = "0000-0002-9884-9090")),
+    person("Cristiano", "Ferraz", , "cferraz@castlab.org", role = "aut",
+           comment = c(ORCID = "0000-0002-6838-6734"))
+    )
+Description: Sequential identification of epsilon-Pareto-optimal alternatives
+    among a finite set with noisy, possibly correlated objectives. Simultaneous
+    anytime-valid confidence sequences for every objective of every alternative
+    (Waudby-Smith and Ramdas, 2024, <doi:10.1093/jrsssb/qkad009>) certify, at
+    any time, which alternatives are epsilon-dominated and which are not, report
+    the estimated frontier, the plausible Pareto set and the certified-dominated
+    set, propose the next alternative to evaluate, and record an auditable
+    result contract.
 License: GPL (>= 3)
-URL: https://github.com/castlaboratory/paretoinfer
+URL: https://castlaboratory.github.io/paretoinfer/, https://github.com/castlaboratory/paretoinfer
 BugReports: https://github.com/castlaboratory/paretoinfer/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 8.0.0
-Suggests: testthat (>= 3.0.0)
+Language: en-GB
+Depends:
+    R (>= 4.1)
+Imports:
+    cli (>= 3.6.0),
+    generics,
+    ggplot2 (>= 3.5.0),
+    rlang (>= 1.1.0),
+    seqbench (>= 0.1.0),
+    stats,
+    tibble (>= 3.2.0),
+    utils
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
 Config/testthat/edition: 3
-Imports: seqbench
-Remotes: castlaboratory/seqbench
+VignetteBuilder: knitr

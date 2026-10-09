@@ -6,11 +6,14 @@
 \alias{paretoinfer-package}
 \title{paretoinfer: Sequential Identification of Approximately Pareto-Optimal Alternatives under Noise}
 \description{
-Sequential elimination and identification of epsilon-Pareto-optimal alternatives among a finite set with noisy, correlated objectives. Simultaneous confidence sequences for objective differences, plausible Pareto sets, certified dominance and adaptive choice of the next evaluation.
+\if{html}{\figure{logo.svg}{options: style='float: right' alt='logo' width='120'}}
+
+Sequential identification of epsilon-Pareto-optimal alternatives among a finite set with noisy, possibly correlated objectives. Simultaneous anytime-valid confidence sequences for every objective of every alternative (Waudby-Smith and Ramdas, 2024, \doi{10.1093/jrsssb/qkad009}) certify, at any time, which alternatives are epsilon-dominated and which are not, report the estimated frontier, the plausible Pareto set and the certified-dominated set, propose the next alternative to evaluate, and record an auditable result contract.
 }
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://castlaboratory.github.io/paretoinfer/}
   \item \url{https://github.com/castlaboratory/paretoinfer}
   \item Report bugs at \url{https://github.com/castlaboratory/paretoinfer/issues}
 }
@@ -22,6 +25,8 @@ Useful links:
 Authors:
 \itemize{
   \item André Leite \email{leite@castlab.org} (\href{https://orcid.org/0000-0002-4718-9766}{ORCID})
+  \item Raydonal Ospina \email{raydonal@castlab.org} (\href{https://orcid.org/0000-0002-9884-9090}{ORCID})
+  \item Cristiano Ferraz \email{cferraz@castlab.org} (\href{https://orcid.org/0000-0002-6838-6734}{ORCID})
 }
 
 }

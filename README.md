@@ -1,4 +1,4 @@
-# paretoinfer
+# paretoinfer <a href="https://castlaboratory.github.io/paretoinfer/"><img src="man/figures/logo.png" align="right" height="139" alt="paretoinfer logo" /></a>
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/castlaboratory/paretoinfer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/castlaboratory/paretoinfer/actions/workflows/R-CMD-check.yaml)
@@ -10,35 +10,54 @@ the objectives are noisy.**
 
 Given a finite set of `K` alternatives evaluated on `m` objectives through
 noisy (and possibly correlated) simulation, an alternative can look dominated
-purely by sampling error. `paretoinfer` maintains simultaneous confidence
-sequences for objective differences and reports, at any time, three disjoint
-sets:
+purely by sampling error. `paretoinfer` maintains simultaneous anytime-valid
+confidence sequences for every objective of every alternative (from
+[seqbench](https://CRAN.R-project.org/package=seqbench)) and reports, at any
+time, three sets:
 
-- the **estimated frontier**,
-- the **plausible Pareto set** (alternatives that cannot yet be certified as
-  `ε`-dominated), and
-- the **certified-dominated** alternatives.
+- the **estimated frontier** (a point estimate),
+- the **plausible Pareto set**: alternatives that cannot yet be certified as
+  `epsilon`-dominated, with the subset **certified optimal**, and
+- the **certified dominated** alternatives, each with the alternative that
+  dominates it.
 
-It also proposes the next alternative to evaluate, concentrating effort on the
-ambiguous comparisons.
-
-## Status
-
-Pre-alpha. The API below is a design target, not yet implemented.
-
-```r
-design <- pareto_design(K = 12, m = 2, alpha = 0.05, epsilon = c(0.01, 0.01))
-state  <- update_objectives(state, new_evaluations)
-plausible_pareto_set(state)
-choose_next_evaluation(state)
-plot_uncertain_frontier(state)
-```
+With probability at least `1 - alpha`, every certificate ever issued is true,
+under optional stopping and adaptive choice of what to evaluate next. The
+package also proposes the next alternative to evaluate, concentrating effort
+on the ambiguous comparisons, and records an auditable result contract.
 
 ## Installation
 
 ```r
 # install.packages("pak")
 pak::pak("castlaboratory/paretoinfer")
+```
+
+## Example
+
+```r
+library(paretoinfer)
+means <- rbind(A1 = c(0.2, 0.7), A2 = c(0.5, 0.4), A3 = c(0.7, 0.2), A4 = c(0.6, 0.6))
+simulate <- function(alternative, n) {
+  mu <- means[alternative, ]
+  data.frame(y1 = runif(n, mu[1] - 0.1, mu[1] + 0.1), y2 = runif(n, mu[2] - 0.1, mu[2] + 0.1))
+}
+design <- pareto_design(alternatives = rownames(means), objectives = c("y1", "y2"),
+                        bounds = c(0, 1), alpha = 0.05, epsilon = 0.05, max_evaluations = 2000)
+set.seed(1)
+state <- pareto_run(design, simulate, batch = 5)
+state
+plausible_pareto_set(state)
+autoplot(state)   # simultaneous confidence boxes and the estimated frontier
+```
+
+Step by step, for evaluations that come from elsewhere:
+
+```r
+state <- initialize_pareto(design)
+state <- update_objectives(state, evaluations)   # data frame: alternative, y1, y2[, cost]
+choose_next_evaluation(state)
+pareto_report(state)
 ```
 
 ## Related software
@@ -48,10 +67,22 @@ space; for that see [BoTorch](https://botorch.org),
 [GPareto](https://cran.r-project.org/package=GPareto),
 [rmoo](https://cran.r-project.org/package=rmoo) or
 [moocore](https://cran.r-project.org/package=moocore). It targets the
-finite-alternative *identification* problem (Pareto set identification /
-multi-objective ranking and selection) with anytime-valid guarantees, and
-shares its sequential core with
-[seqbench](https://github.com/castlaboratory/seqbench).
+finite-alternative *identification* problem (Pareto set identification in
+bandits: Auer et al. 2016; Kone, Kaufmann and Richert 2024; multi-objective
+ranking and selection) with anytime-valid guarantees, and shares its
+sequential core with [seqbench](https://CRAN.R-project.org/package=seqbench).
+
+## References
+
+Auer, P., Chiang, C.-K., Ortner, R. and Drugan, M. (2016). Pareto front
+identification from stochastic bandit feedback. *AISTATS 2016*, 939–947.
+
+Kone, C., Kaufmann, E. and Richert, L. (2024). Adaptive algorithms for relaxed
+Pareto set identification. *AISTATS 2024*.
+
+Waudby-Smith, I. and Ramdas, A. (2024). Estimating means of bounded random
+variables by betting. *Journal of the Royal Statistical Society: Series B*,
+86(1), 1–27.
 
 ## License
 

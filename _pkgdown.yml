@@ -1,0 +1,38 @@
+url: https://castlaboratory.github.io/paretoinfer/
+
+template:
+  bootstrap: 5
+  light-switch: true
+  bslib:
+    primary: "#1B7F79"
+    base_font: {google: "Source Sans 3"}
+    heading_font: {google: "Source Sans 3"}
+    code_font: {google: "JetBrains Mono"}
+
+development:
+  mode: auto
+
+authors:
+  André Leite:
+    href: https://castlab.org
+  Raydonal Ospina:
+    href: https://castlab.org
+  Cristiano Ferraz:
+    href: https://castlab.org
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [search, lightswitch, github]
+
+reference:
+- title: Design and run an identification
+  contents: [pareto_design, initialize_pareto, update_objectives, choose_next_evaluation, pareto_run]
+- title: Results
+  contents: [plausible_pareto_set, pareto_report, tidy.paretoinfer_state, glance.paretoinfer_state, autoplot.paretoinfer_state]
+- title: Re-exports
+  contents: [reexports]
+articles:
+- title: Get started
+  navbar: ~
+  contents: [paretoinfer]
