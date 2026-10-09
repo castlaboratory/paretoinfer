@@ -91,9 +91,13 @@ its running intersection at every time. On that event every certificate
 the package issues is true: an alternative reported as *certified
 dominated* is truly epsilon-dominated by the alternative named, and one
 reported as *certified optimal* is truly not epsilon-dominated by any
-other. The guarantee holds under optional stopping, adaptive choice of
-what to evaluate next and arbitrary dependence between the objectives of
-one evaluation.
+other plausible alternative. When two alternatives certifiably
+epsilon-dominate each other (an epsilon-tie), only the later one in
+design order is discarded, so every tie keeps one representative; the
+discarded one is still truly epsilon-dominated by the alternative named.
+The guarantee holds under optional stopping, adaptive choice of what to
+evaluate next and arbitrary dependence between the objectives of one
+evaluation.
 
 ## References
 

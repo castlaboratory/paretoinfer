@@ -72,11 +72,11 @@ state
 #> 
 #> ── Pareto identification ───────────────────────────────────────────────────────
 #> 6 alternatives, 2 objectives, alpha 0.05, epsilon 0.05, 0.05.
-#> 3000 evaluations, cost 3000.
+#> 645 evaluations, cost 645.
 #> • Estimated frontier: "A1", "A2", and "A3"
-#> • Plausible Pareto set: "A1", "A2", and "A3" (certified optimal: A1, A3)
+#> • Plausible Pareto set: "A1", "A2", and "A3" (certified optimal: A1, A2, A3)
 #> • Certified dominated: A4, A5, A6
-#> ℹ Stopped: max_evaluations.
+#> ℹ Stopped: identified.
 ```
 
 The procedure evaluated every alternative five times, then repeatedly
@@ -91,10 +91,10 @@ sets$table
 #> # A tibble: 6 × 7
 #>   alternative status      on_estimated_frontier dominated_by n_evaluations  cost
 #>   <chr>       <chr>       <lgl>                 <chr>                <int> <dbl>
-#> 1 A1          certified_… TRUE                  NA                     180   180
-#> 2 A2          uncertain   TRUE                  NA                    2430  2430
+#> 1 A1          certified_… TRUE                  NA                      85    85
+#> 2 A2          certified_… TRUE                  NA                     175   175
 #> 3 A3          certified_… TRUE                  NA                      70    70
-#> 4 A4          certified_… FALSE                 A2                     180   180
+#> 4 A4          certified_… FALSE                 A2                     175   175
 #> 5 A5          certified_… FALSE                 A2                      55    55
 #> 6 A6          certified_… FALSE                 A1                      85    85
 #> # ℹ 1 more variable: cs_empty <lgl>
@@ -175,9 +175,11 @@ pareto_report(state)
 #> intersections at every time, and every certificate below is then true.
 #> • Dominance is epsilon-dominance with epsilon = (0.05, 0.05): j dominates k
 #> when mu[j] <= mu[k] + epsilon in every objective.
+#> • Certified optimal means not epsilon-dominated by any other plausible
+#> alternative; epsilon-ties keep their earliest member in design order.
 #> • The estimated frontier is a point estimate without a certificate; the
 #> plausible set and the certified sets carry the guarantee.
-#> paretoinfer 0.0.0.9000, seqbench 0.1.0, R version 4.6.1 (2026-06-24)
+#> paretoinfer 0.1.0, seqbench 0.1.0, R version 4.6.1 (2026-06-24)
 glance(state)
 #> # A tibble: 1 × 12
 #>       K     m alpha n_evaluations total_cost n_frontier n_plausible

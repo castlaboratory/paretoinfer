@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">paretoinfer</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,10 +39,19 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.0.0.9000" id="paretoinfer-0009000">paretoinfer 0.0.0.9000<a class="anchor" aria-label="anchor" href="#paretoinfer-0009000"></a></h2>
-<ul><li>First implementation: <code><a href="../reference/pareto_design.html">pareto_design()</a></code> (finite alternatives, minimised objectives with known bounds, epsilon-dominance, alpha split over the K x m confidence sequences, budget), <code><a href="../reference/initialize_pareto.html">initialize_pareto()</a></code>, <code><a href="../reference/update_objectives.html">update_objectives()</a></code>, <code><a href="../reference/plausible_pareto_set.html">plausible_pareto_set()</a></code> (estimated frontier, plausible set, certified optimal, certified dominated), <code><a href="../reference/choose_next_evaluation.html">choose_next_evaluation()</a></code>, <code><a href="../reference/pareto_run.html">pareto_run()</a></code>, <code><a href="../reference/pareto_report.html">pareto_report()</a></code>; S3 class <code>paretoinfer_state</code> with <code>print</code>, <code>summary</code>, <code>tidy</code>, <code>glance</code>, <code>autoplot</code> / <code><a href="../reference/autoplot.paretoinfer_state.html">plot_uncertain_frontier()</a></code>.</li>
-<li>Confidence sequences come from <code>seqbench</code> (betting by default).</li>
-<li>Getting-started vignette; pkgdown site; hex logo.</li>
+<h2 class="pkg-version" data-toc-text="0.1.0" id="paretoinfer-010">paretoinfer 0.1.0<a class="anchor" aria-label="anchor" href="#paretoinfer-010"></a></h2>
+<p>First CRAN release.</p>
+<ul><li>
+<code><a href="../reference/pareto_design.html">pareto_design()</a></code>: finite alternatives, minimised objectives with known bounds, epsilon-dominance, alpha shared by a union bound over the K x m confidence sequences, boundary from <code>seqbench</code>, cost and budget.</li>
+<li>
+<code><a href="../reference/initialize_pareto.html">initialize_pareto()</a></code>, <code><a href="../reference/update_objectives.html">update_objectives()</a></code>: one anytime-valid confidence sequence per alternative and objective, running intersections, auditable history and stopping reason.</li>
+<li>
+<code><a href="../reference/plausible_pareto_set.html">plausible_pareto_set()</a></code>: estimated frontier, plausible Pareto set, certified optimal and certified dominated alternatives (each with the alternative that dominates it); epsilon-ties keep one representative.</li>
+<li>
+<code><a href="../reference/choose_next_evaluation.html">choose_next_evaluation()</a></code> and <code><a href="../reference/pareto_run.html">pareto_run()</a></code>: adaptive choice of the next alternative by confidence-box width per unit cost, and a run loop with a user simulator.</li>
+<li>
+<code><a href="../reference/pareto_report.html">pareto_report()</a></code>; S3 class <code>paretoinfer_state</code> with <code>print</code>, <code>summary</code>, <code>tidy</code>, <code>glance</code>, <code>autoplot</code> / <code><a href="../reference/autoplot.paretoinfer_state.html">plot_uncertain_frontier()</a></code>.</li>
+<li>Getting-started vignette.</li>
 </ul></div>
   </main></div>
 

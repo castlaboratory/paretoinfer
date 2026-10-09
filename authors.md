@@ -14,17 +14,16 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/castlaboratory/paretoinfer/blob/main/DESCRIPTION)
+[`inst/CITATION`](https://github.com/castlaboratory/paretoinfer/blob/main/inst/CITATION)
 
-Leite A, Ospina R, Ferraz C (2026). *paretoinfer: Sequential
-Identification of Approximately Pareto-Optimal Alternatives under
-Noise*. R package version 0.0.0.9000,
-<https://castlaboratory.github.io/paretoinfer/>.
+Leite, A., Ospina, R., & Ferraz, C. (2026). paretoinfer: Sequential
+Identification of Approximately Pareto-Optimal Alternatives under Noise.
+R package version 0.1.0. https://github.com/castlaboratory/paretoinfer
 
     @Manual{,
       title = {paretoinfer: Sequential Identification of Approximately Pareto-Optimal Alternatives under Noise},
       author = {André Leite and Raydonal Ospina and Cristiano Ferraz},
       year = {2026},
-      note = {R package version 0.0.0.9000},
-      url = {https://castlaboratory.github.io/paretoinfer/},
+      note = {R package version 0.1.0},
+      url = {https://github.com/castlaboratory/paretoinfer},
     }

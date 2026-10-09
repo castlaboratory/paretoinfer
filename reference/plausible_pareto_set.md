@@ -19,10 +19,10 @@ plausible_pareto_set(state)
 A list of class `pareto_sets` with `frontier` (alternatives whose point
 estimates are not dominated by the estimate of any other plausible
 alternative), `plausible` (not certified dominated), `certified_optimal`
-(plausible and certified not epsilon-dominated by any other),
-`uncertain` (plausible but not certified), `dominated` (certified
-epsilon-dominated), `identified` (no uncertain alternative left) and
-`table`, a tibble with one row per alternative: `status`,
+(plausible and certified not epsilon-dominated by any other plausible
+alternative), `uncertain` (plausible but not certified), `dominated`
+(certified epsilon-dominated), `identified` (no uncertain alternative
+left) and `table`, a tibble with one row per alternative: `status`,
 `on_estimated_frontier`, `dominated_by`, `n_evaluations`, `cost`,
 `cs_empty`.
 

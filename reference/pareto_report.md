@@ -53,7 +53,9 @@ pareto_report(state)
 #> intersections at every time, and every certificate below is then true.
 #> • Dominance is epsilon-dominance with epsilon = (0.1, 0.1): j dominates k when
 #> mu[j] <= mu[k] + epsilon in every objective.
+#> • Certified optimal means not epsilon-dominated by any other plausible
+#> alternative; epsilon-ties keep their earliest member in design order.
 #> • The estimated frontier is a point estimate without a certificate; the
 #> plausible set and the certified sets carry the guarantee.
-#> paretoinfer 0.0.0.9000, seqbench 0.1.0, R version 4.6.1 (2026-06-24)
+#> paretoinfer 0.1.0, seqbench 0.1.0, R version 4.6.1 (2026-06-24)
 ```

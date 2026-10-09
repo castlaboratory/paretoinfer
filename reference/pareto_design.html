@@ -13,7 +13,7 @@ boundary and the budget."><meta property="og:image" content="https://castlaborat
 
     <a class="navbar-brand me-2" href="../index.html">paretoinfer</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -138,9 +138,13 @@ probability at least <code>1 - alpha</code> every true mean lies in its running
 intersection at every time. On that event every certificate the package
 issues is true: an alternative reported as <em>certified dominated</em> is truly
 epsilon-dominated by the alternative named, and one reported as <em>certified
-optimal</em> is truly not epsilon-dominated by any other. The guarantee holds
-under optional stopping, adaptive choice of what to evaluate next and
-arbitrary dependence between the objectives of one evaluation.</p>
+optimal</em> is truly not epsilon-dominated by any other plausible alternative.
+When two alternatives certifiably epsilon-dominate each other (an
+epsilon-tie), only the later one in design order is discarded, so every tie
+keeps one representative; the discarded one is still truly epsilon-dominated
+by the alternative named. The guarantee holds under optional stopping,
+adaptive choice of what to evaluate next and arbitrary dependence between
+the objectives of one evaluation.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
