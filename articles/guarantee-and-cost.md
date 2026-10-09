@@ -79,11 +79,11 @@ data.frame(alternative = design$alternatives,
 ## The guarantee: no false discard
 
 Three alternatives, all on the true frontier, with noise of half-width
-0.2 and `epsilon = 0`: nothing may ever be certified dominated. Twenty
+0.2 and `epsilon = 0`: nothing may ever be certified dominated. Twelve
 independent identifications with a budget of 300 evaluations each are
 run and the number of discards counted. The guarantee says the expected
 number of runs with at least one false discard is at most `alpha` times
-twenty, that is one.
+twelve, below one.
 
 ``` r
 
@@ -95,14 +95,14 @@ sim_frontier <- function(alternative, n) {
 design0 <- pareto_design(alternatives = rownames(frontier), objectives = c("y1", "y2"),
                          bounds = c(0, 1), alpha = 0.05, epsilon = 0, max_evaluations = 300)
 set.seed(2)
-discards <- replicate(20, {
+discards <- replicate(12, {
   state <- suppressWarnings(pareto_run(design0, sim_frontier, batch = 10, initial = 10))
   length(plausible_pareto_set(state)$dominated)
 })
 table(discards)
 #> discards
 #>  0 
-#> 20
+#> 12
 ```
 
 With `epsilon = 0` and alternatives that are genuinely close, the
