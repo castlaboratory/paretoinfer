@@ -48,3 +48,18 @@ test_that("a fresh state has everything uncertain and nothing on the frontier", 
   expect_length(s$frontier, 0L)
   expect_equal(choose_next_evaluation(initialize_pareto(d), n = 3)$width, rep(1, 3))
 })
+
+test_that("epsilon-ties keep one representative and still identify", {
+  lower <- rbind(c(0.40, 0.40), c(0.41, 0.41), c(0.90, 0.90)); upper <- lower + 0.02
+  s <- plausible_pareto_set(fake_state(lower, upper, epsilon = 0.1))
+  expect_equal(s$plausible, "A1")
+  expect_setequal(s$dominated, c("A2", "A3"))
+  expect_equal(s$table$dominated_by, c(NA, "A1", "A1"))
+  expect_equal(s$certified_optimal, "A1")
+  expect_true(s$identified)
+  # a one-directional dominator takes precedence over a tied one
+  lower <- rbind(c(0.40, 0.40), c(0.41, 0.41), c(0.10, 0.10)); upper <- lower + 0.02
+  s <- plausible_pareto_set(fake_state(lower, upper, epsilon = 0.1))
+  expect_equal(s$plausible, "A3")
+  expect_equal(s$table$dominated_by[1:2], c("A3", "A3"))
+})

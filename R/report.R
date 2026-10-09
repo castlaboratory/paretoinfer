@@ -32,6 +32,7 @@ pareto_report <- function(state) {
               d$K * d$m, format(d$alpha), format(signif(d$alpha_each, 3)), format(1 - d$alpha)),
       sprintf("Dominance is epsilon-dominance with epsilon = (%s): j dominates k when mu[j] <= mu[k] + epsilon in every objective.",
               paste(signif(d$epsilon, 3), collapse = ", ")),
+      "Certified optimal means not epsilon-dominated by any other plausible alternative; epsilon-ties keep their earliest member in design order.",
       "The estimated frontier is a point estimate without a certificate; the plausible set and the certified sets carry the guarantee."),
     versions = state$versions, created = d$created
   ), class = "pareto_report")

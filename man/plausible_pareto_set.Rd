@@ -13,7 +13,8 @@ plausible_pareto_set(state)
 A list of class \code{pareto_sets} with \code{frontier} (alternatives whose
 point estimates are not dominated by the estimate of any other plausible
 alternative), \code{plausible} (not certified dominated), \code{certified_optimal}
-(plausible and certified not epsilon-dominated by any other),
+(plausible and certified not epsilon-dominated by any other plausible
+alternative),
 \code{uncertain} (plausible but not certified), \code{dominated} (certified
 epsilon-dominated), \code{identified} (no uncertain alternative left) and
 \code{table}, a tibble with one row per alternative: \code{status},

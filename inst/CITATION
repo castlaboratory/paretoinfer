@@ -1,0 +1,20 @@
+year <- if (!is.null(meta$Date)) sub("-.*", "", meta$Date) else format(Sys.Date(), "%Y")
+ver  <- meta$Version
+
+bibentry(
+  bibtype = "Manual",
+  title   = "paretoinfer: Sequential Identification of Approximately Pareto-Optimal Alternatives under Noise",
+  author  = c(
+    person("André",     "Leite",  email = "leite@castlab.org", role = c("aut", "cre")),
+    person("Raydonal",  "Ospina", email = "raydonal@castlab.org", role = "aut"),
+    person("Cristiano", "Ferraz", email = "cferraz@castlab.org", role = "aut")
+  ),
+  year    = year,
+  note    = sprintf("R package version %s", ver),
+  url     = "https://github.com/castlaboratory/paretoinfer",
+  textVersion = paste0(
+    "Leite, A., Ospina, R., & Ferraz, C. (", year,
+    "). paretoinfer: Sequential Identification of Approximately Pareto-Optimal Alternatives under Noise. ",
+    "R package version ", ver, ". https://github.com/castlaboratory/paretoinfer"
+  )
+)

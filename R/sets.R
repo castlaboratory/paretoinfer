@@ -2,45 +2,54 @@
 #
 # With all K x m running intersections [L, U] valid simultaneously:
 #   j certifiably epsilon-dominates k  <=>  U[j, i] <= L[k, i] + eps[i] for all i
-#   k is certified optimal            <=>  for every j != k there is an i with
+#   k is certified optimal            <=>  k is not discarded and, for every other
+#                                           survivor j, there is an i with
 #                                           L[j, i] > U[k, i] + eps[i]
 #                                           (j cannot epsilon-dominate k)
-# The estimated frontier is the set of alternatives whose point estimates are
-# not dominated (exactly) by the estimate of any other plausible alternative.
+# Mutual certificates (epsilon-ties) keep one representative, the earliest in
+# design order. The estimated frontier is the set of survivors whose point
+# estimates are not dominated (exactly) by the estimate of any other survivor.
 
 compute_sets <- function(state) {
-  d <- state$design; K <- d$K; m <- d$m
+  d <- state$design; K <- d$K
   L <- state$lower; U <- state$upper; E <- state$estimate
-  if (K == 0L) return(NULL)
   eps <- d$epsilon
-  dominated_by <- rep(NA_character_, K); names(dominated_by) <- d$alternatives
-  status <- rep("uncertain", K); names(status) <- d$alternatives
+  # dom[j, k]: j certifiably epsilon-dominates k
+  dom <- matrix(FALSE, K, K)
+  for (j in seq_len(K)) for (k in seq_len(K)) {
+    if (j != k) dom[j, k] <- all(U[j, ] <= L[k, ] + eps)
+  }
+  # Discard k when some j certifiably dominates it, unless the two certifiably
+  # dominate each other (an epsilon-tie): then only the later one in design order
+  # is discarded, so that every tie keeps one representative. A one-directional
+  # dominator takes precedence over a tied one.
+  discarded <- logical(K); dominated_by <- rep(NA_character_, K)
   for (k in seq_len(K)) {
-    for (j in seq_len(K)) {
-      if (j == k) next
-      if (all(U[j, ] <= L[k, ] + eps)) { dominated_by[k] <- d$alternatives[j]; break }
+    js <- which(dom[, k])
+    js <- js[order(dom[k, js], js)]          # one-directional first, then by design order
+    for (j in js) {
+      if (!dom[k, j] || j < k) { discarded[k] <- TRUE; dominated_by[k] <- d$alternatives[j]; break }
     }
   }
-  status[!is.na(dominated_by)] <- "certified_dominated"
-  for (k in seq_len(K)) {
-    if (status[k] == "certified_dominated") next
-    others <- setdiff(seq_len(K), k)
+  survivors <- which(!discarded)
+  status <- ifelse(discarded, "certified_dominated", "uncertain")
+  for (k in survivors) {
+    others <- setdiff(survivors, k)
     ok <- vapply(others, function(j) any(L[j, ] > U[k, ] + eps), logical(1))
     if (all(ok)) status[k] <- "certified_optimal"
   }
-  plausible <- which(status != "certified_dominated")
   on_frontier <- rep(FALSE, K)
-  for (k in plausible) {
+  for (k in survivors) {
     if (any(is.na(E[k, ]))) next
     dominated <- FALSE
-    for (j in plausible) {
+    for (j in survivors) {
       if (j == k || any(is.na(E[j, ]))) next
       if (all(E[j, ] <= E[k, ]) && any(E[j, ] < E[k, ])) { dominated <- TRUE; break }
     }
     on_frontier[k] <- !dominated
   }
-  tibble::tibble(alternative = d$alternatives, status = unname(status),
-                 on_estimated_frontier = on_frontier, dominated_by = unname(dominated_by),
+  tibble::tibble(alternative = d$alternatives, status = status,
+                 on_estimated_frontier = on_frontier, dominated_by = dominated_by,
                  n_evaluations = unname(state$n), cost = unname(state$cost),
                  cs_empty = unname(apply(state$cs_empty, 1, any)))
 }
@@ -59,7 +68,8 @@ stopping_reason <- function(state, sets) {
 #' @return A list of class `pareto_sets` with `frontier` (alternatives whose
 #'   point estimates are not dominated by the estimate of any other plausible
 #'   alternative), `plausible` (not certified dominated), `certified_optimal`
-#'   (plausible and certified not epsilon-dominated by any other),
+#'   (plausible and certified not epsilon-dominated by any other plausible
+#'   alternative),
 #'   `uncertain` (plausible but not certified), `dominated` (certified
 #'   epsilon-dominated), `identified` (no uncertain alternative left) and
 #'   `table`, a tibble with one row per alternative: `status`,
