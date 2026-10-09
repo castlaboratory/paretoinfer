@@ -123,6 +123,12 @@
 <span><span class="fu"><a href="reference/pareto_report.html">pareto_report</a></span><span class="op">(</span><span class="va">state</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
+<h2 id="how-it-works">How it works<a class="anchor" aria-label="anchor" href="#how-it-works"></a>
+</h2>
+<p><img src="reference/figures/architecture.svg" alt="Architecture of paretoinfer: design and state, sets with certificates, sampling rule and outputs" width="100%"></p>
+<p><img src="reference/figures/workflow.svg" alt="Workflow of paretoinfer: choose, evaluate, update and compute the sets until every alternative is certified" width="100%"></p>
+</div>
+<div class="section level2">
 <h2 id="related-software">Related software<a class="anchor" aria-label="anchor" href="#related-software"></a>
 </h2>
 <p><code>paretoinfer</code> does not do multi-objective <em>optimisation</em> over a continuous space; for that see <a href="https://botorch.org" class="external-link">BoTorch</a>, <a href="https://cran.r-project.org/package=GPareto" class="external-link">GPareto</a>, <a href="https://cran.r-project.org/package=rmoo" class="external-link">rmoo</a> or <a href="https://cran.r-project.org/package=moocore" class="external-link">moocore</a>. It targets the finite-alternative <em>identification</em> problem (Pareto set identification in bandits: Auer et al. 2016; Kone, Kaufmann and Richert 2024; multi-objective ranking and selection) with anytime-valid guarantees, and shares its sequential core with <a href="https://CRAN.R-project.org/package=seqbench" class="external-link">seqbench</a>.</p>
