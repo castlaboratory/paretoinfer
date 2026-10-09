@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="278" viewBox="0 0 240 278">
+  <defs>
+    <clipPath id="hex">
+      <polygon points="120,6 234,72 234,206 120,272 6,206 6,72"/>
+    </clipPath>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1F3B3A"/>
+      <stop offset="1" stop-color="#0F1F1F"/>
+    </linearGradient>
+  </defs>
+  <polygon points="120,6 234,72 234,206 120,272 6,206 6,72" fill="url(#bg)" stroke="#1B7F79" stroke-width="7" stroke-linejoin="round"/>
+  <g clip-path="url(#hex)">
+    <!-- axes -->
+    <line x1="40" y1="200" x2="205" y2="200" stroke="#6E8F8D" stroke-width="2"/>
+    <line x1="40" y1="200" x2="40" y2="60" stroke="#6E8F8D" stroke-width="2"/>
+    <!-- dominated: grey boxes -->
+    <rect x="140" y="112" width="40" height="34" fill="#9AA5A4" fill-opacity="0.25" stroke="#9AA5A4" stroke-width="2"/>
+    <circle cx="160" cy="129" r="4" fill="#9AA5A4"/>
+    <rect x="112" y="80" width="34" height="30" fill="#9AA5A4" fill-opacity="0.25" stroke="#9AA5A4" stroke-width="2"/>
+    <circle cx="129" cy="95" r="4" fill="#9AA5A4"/>
+    <!-- frontier: certified boxes and step line -->
+    <polyline fill="none" stroke="#E8A33D" stroke-width="3.5" stroke-linejoin="round"
+      points="56,78 56,132 100,132 100,166 150,166 150,184 190,184"/>
+    <rect x="46" y="66" width="22" height="24" fill="#3EC9B0" fill-opacity="0.3" stroke="#3EC9B0" stroke-width="2.5"/>
+    <circle cx="56" cy="78" r="4.5" fill="#3EC9B0"/>
+    <rect x="86" y="118" width="28" height="28" fill="#3EC9B0" fill-opacity="0.3" stroke="#3EC9B0" stroke-width="2.5"/>
+    <circle cx="100" cy="132" r="4.5" fill="#3EC9B0"/>
+    <rect x="134" y="152" width="32" height="28" fill="#8B7CF6" fill-opacity="0.3" stroke="#8B7CF6" stroke-width="2.5"/>
+    <circle cx="150" cy="166" r="4.5" fill="#8B7CF6"/>
+    <rect x="178" y="174" width="26" height="20" fill="#3EC9B0" fill-opacity="0.3" stroke="#3EC9B0" stroke-width="2.5"/>
+    <circle cx="190" cy="184" r="4.5" fill="#3EC9B0"/>
+  </g>
+  <text x="120" y="244" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="32" font-weight="700" fill="#F2F4F7" letter-spacing="0.5">paretoinfer</text>
+</svg>
