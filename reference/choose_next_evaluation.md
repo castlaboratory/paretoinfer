@@ -34,8 +34,8 @@ cost), `width` (largest normalised width over objectives) and
 
 ``` r
 design <- pareto_design(alternatives = 3, objectives = 2, bounds = c(0, 1), epsilon = 0.05)
-state <- initialize_pareto(design)
-choose_next_evaluation(state, n = 2)
+initialize_pareto(design) |>
+  choose_next_evaluation(n = 2)
 #> # A tibble: 2 × 4
 #>   alternative score width n_evaluations
 #>   <chr>       <dbl> <dbl>         <int>

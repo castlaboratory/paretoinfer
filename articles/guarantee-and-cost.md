@@ -3,6 +3,8 @@
 ``` r
 
 library(paretoinfer)
+library(dplyr)
+library(purrr)
 ```
 
 Two numbers describe an identification procedure: how often it discards
@@ -12,13 +14,21 @@ bound at all. This vignette measures both on simulated problems.
 
 ``` r
 
-means <- rbind(A1 = c(0.15, 0.70), A2 = c(0.40, 0.40), A3 = c(0.70, 0.15),
-               A4 = c(0.42, 0.43), A5 = c(0.60, 0.60), A6 = c(0.30, 0.80))
+means <- tribble(
+  ~alternative,   ~y1,  ~y2,
+  "A1",          0.15, 0.70,
+  "A2",          0.40, 0.40,
+  "A3",          0.70, 0.15,
+  "A4",          0.42, 0.43,
+  "A5",          0.60, 0.60,
+  "A6",          0.30, 0.80
+)
 simulate <- function(alternative, n, h = 0.1) {
-  mu <- means[alternative, ]
-  data.frame(y1 = runif(n, mu[1] - h, mu[1] + h), y2 = runif(n, mu[2] - h, mu[2] + h))
+  mu <- means |> filter(alternative == .env$alternative)
+  tibble(y1 = runif(n, mu$y1 - h, mu$y1 + h),
+         y2 = runif(n, mu$y2 - h, mu$y2 + h))
 }
-design <- pareto_design(alternatives = rownames(means), objectives = c("y1", "y2"),
+design <- pareto_design(alternatives = means$alternative, objectives = c("y1", "y2"),
                         bounds = c(0, 1), alpha = 0.05, epsilon = 0.05, max_evaluations = 3000)
 ```
 
@@ -35,7 +45,8 @@ certified.
 
 set.seed(1)
 adaptive <- pareto_run(design, simulate, batch = 5, initial = 5)
-glance(adaptive)[, c("n_evaluations", "n_certified_optimal", "n_dominated", "identified")]
+glance(adaptive) |>
+  select(n_evaluations, n_certified_optimal, n_dominated, identified)
 #> # A tibble: 1 × 4
 #>   n_evaluations n_certified_optimal n_dominated identified
 #>           <int>               <int>       <int> <lgl>     
@@ -44,20 +55,22 @@ glance(adaptive)[, c("n_evaluations", "n_certified_optimal", "n_dominated", "ide
 
 ``` r
 
+one_round <- function() {
+  design$alternatives |>
+    map(\(k) simulate(k, 5) |> mutate(alternative = k)) |>
+    list_rbind()
+}
 set.seed(1)
 uniform <- initialize_pareto(design)
 while (is.na(uniform$stopping_reason)) {
-  for (k in design$alternatives) {
-    ev <- simulate(k, 5); ev$alternative <- k
-    uniform <- update_objectives(uniform, ev)
-    if (!is.na(uniform$stopping_reason)) break
-  }
+  uniform <- uniform |> update_objectives(one_round())
 }
-glance(uniform)[, c("n_evaluations", "n_certified_optimal", "n_dominated", "identified")]
+glance(uniform) |>
+  select(n_evaluations, n_certified_optimal, n_dominated, identified)
 #> # A tibble: 1 × 4
 #>   n_evaluations n_certified_optimal n_dominated identified
 #>           <int>               <int>       <int> <lgl>     
-#> 1          1190                   3           3 TRUE
+#> 1          1200                   3           3 TRUE
 ```
 
 The evaluations per alternative show where the adaptive rule saved: the
@@ -65,15 +78,18 @@ clearly dominated alternatives were certified early and left alone.
 
 ``` r
 
-data.frame(alternative = design$alternatives,
-           adaptive = unname(adaptive$n), uniform = unname(uniform$n))
+tibble(alternative = design$alternatives,
+       adaptive = adaptive$n,
+       uniform = uniform$n)
+#> # A tibble: 6 × 3
 #>   alternative adaptive uniform
-#> 1          A1       85     200
-#> 2          A2      175     200
-#> 3          A3       70     200
-#> 4          A4      175     200
-#> 5          A5       55     195
-#> 6          A6       85     195
+#>   <chr>          <int>   <int>
+#> 1 A1                85     200
+#> 2 A2               175     200
+#> 3 A3                70     200
+#> 4 A4               175     200
+#> 5 A5                55     200
+#> 6 A6                85     200
 ```
 
 ## The guarantee: no false discard
@@ -87,22 +103,30 @@ twelve, below one.
 
 ``` r
 
-frontier <- rbind(A1 = c(0.30, 0.60), A2 = c(0.50, 0.40), A3 = c(0.45, 0.45))
-sim_frontier <- function(alternative, n) {
-  mu <- frontier[alternative, ]
-  data.frame(y1 = runif(n, mu[1] - 0.2, mu[1] + 0.2), y2 = runif(n, mu[2] - 0.2, mu[2] + 0.2))
+frontier <- tribble(
+  ~alternative,   ~y1,  ~y2,
+  "A1",          0.30, 0.60,
+  "A2",          0.50, 0.40,
+  "A3",          0.45, 0.45
+)
+sim_frontier <- function(alternative, n, h = 0.2) {
+  mu <- frontier |> filter(alternative == .env$alternative)
+  tibble(y1 = runif(n, mu$y1 - h, mu$y1 + h),
+         y2 = runif(n, mu$y2 - h, mu$y2 + h))
 }
-design0 <- pareto_design(alternatives = rownames(frontier), objectives = c("y1", "y2"),
+design0 <- pareto_design(alternatives = frontier$alternative, objectives = c("y1", "y2"),
                          bounds = c(0, 1), alpha = 0.05, epsilon = 0, max_evaluations = 300)
 set.seed(2)
-discards <- replicate(12, {
-  state <- suppressWarnings(pareto_run(design0, sim_frontier, batch = 10, initial = 10))
-  length(plausible_pareto_set(state)$dominated)
-})
-table(discards)
-#> discards
-#>  0 
-#> 12
+discards <- tibble(run = 1:12) |>
+  mutate(n_discarded = map_int(run, \(i) {
+    state <- suppressWarnings(pareto_run(design0, sim_frontier, batch = 10, initial = 10))
+    length(plausible_pareto_set(state)$dominated)
+  }))
+discards |> count(n_discarded)
+#> # A tibble: 1 × 2
+#>   n_discarded     n
+#>         <int> <int>
+#> 1           0    12
 ```
 
 With `epsilon = 0` and alternatives that are genuinely close, the
@@ -119,18 +143,24 @@ to separate `A4` from `A2`.
 
 ``` r
 
+run_with <- function(alpha = 0.05, epsilon = 0.05) {
+  pareto_design(alternatives = means$alternative, objectives = c("y1", "y2"),
+                bounds = c(0, 1), alpha = alpha, epsilon = epsilon,
+                max_evaluations = 4000) |>
+    pareto_run(simulate, batch = 5, initial = 5)
+}
 set.seed(3)
-by_epsilon <- sapply(c(0.02, 0.05, 0.10), function(eps) {
-  d <- pareto_design(alternatives = rownames(means), objectives = c("y1", "y2"),
-                     bounds = c(0, 1), alpha = 0.05, epsilon = eps, max_evaluations = 4000)
-  s <- pareto_run(d, simulate, batch = 5, initial = 5)
-  c(evaluations = s$n_evaluations, dominated = length(plausible_pareto_set(s)$dominated))
-})
-colnames(by_epsilon) <- paste0("eps = ", c(0.02, 0.05, 0.10))
-by_epsilon
-#>             eps = 0.02 eps = 0.05 eps = 0.1
-#> evaluations        870        605       535
-#> dominated            3          3         3
+tibble(epsilon = c(0.02, 0.05, 0.10)) |>
+  mutate(state = map(epsilon, \(eps) run_with(epsilon = eps)),
+         evaluations = map_int(state, \(s) s$n_evaluations),
+         dominated = map_int(state, \(s) length(plausible_pareto_set(s)$dominated))) |>
+  select(-state)
+#> # A tibble: 3 × 3
+#>   epsilon evaluations dominated
+#>     <dbl>       <int>     <int>
+#> 1    0.02         870         3
+#> 2    0.05         605         3
+#> 3    0.1          535         3
 ```
 
 ## What the level buys
@@ -142,14 +172,12 @@ why `alpha = 0.05` and `alpha = 0.01` are not far apart.
 ``` r
 
 set.seed(4)
-by_alpha <- sapply(c(0.10, 0.05, 0.01), function(a) {
-  d <- pareto_design(alternatives = rownames(means), objectives = c("y1", "y2"),
-                     bounds = c(0, 1), alpha = a, epsilon = 0.05, max_evaluations = 4000)
-  pareto_run(d, simulate, batch = 5, initial = 5)$n_evaluations
-})
-data.frame(alpha = c(0.10, 0.05, 0.01), evaluations = by_alpha)
+tibble(alpha = c(0.10, 0.05, 0.01)) |>
+  mutate(evaluations = map_int(alpha, \(a) run_with(alpha = a)$n_evaluations))
+#> # A tibble: 3 × 2
 #>   alpha evaluations
-#> 1  0.10         575
+#>   <dbl>       <int>
+#> 1  0.1          575
 #> 2  0.05         695
 #> 3  0.01         815
 ```

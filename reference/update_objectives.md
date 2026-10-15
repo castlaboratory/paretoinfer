@@ -31,9 +31,11 @@ The updated state.
 ``` r
 design <- pareto_design(alternatives = c("a", "b"), objectives = c("y1", "y2"),
                         bounds = c(0, 1), epsilon = 0.05)
-state <- initialize_pareto(design)
-state <- update_objectives(state, data.frame(alternative = c("a", "b", "a"),
-                                             y1 = c(0.2, 0.5, 0.25), y2 = c(0.6, 0.3, 0.55)))
+evaluations <- tibble::tibble(alternative = c("a", "b", "a"),
+                              y1 = c(0.2, 0.5, 0.25),
+                              y2 = c(0.6, 0.3, 0.55))
+state <- initialize_pareto(design) |>
+  update_objectives(evaluations)
 state
 #> 
 #> ── Pareto identification ───────────────────────────────────────────────────────

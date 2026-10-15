@@ -3,6 +3,8 @@
 ``` r
 
 library(paretoinfer)
+library(dplyr)
+library(purrr)
 ```
 
 ## The problem
@@ -42,12 +44,19 @@ alternative, two are clearly dominated. Noise is uniform with half-width
 
 ``` r
 
-means <- rbind(A1 = c(0.15, 0.70), A2 = c(0.40, 0.40), A3 = c(0.70, 0.15),
-               A4 = c(0.42, 0.43), A5 = c(0.60, 0.60), A6 = c(0.30, 0.80))
-simulate <- function(alternative, n) {
-  mu <- means[alternative, ]
-  data.frame(y1 = runif(n, mu[1] - 0.1, mu[1] + 0.1),
-             y2 = runif(n, mu[2] - 0.1, mu[2] + 0.1))
+means <- tribble(
+  ~alternative,   ~y1,  ~y2,
+  "A1",          0.15, 0.70,
+  "A2",          0.40, 0.40,
+  "A3",          0.70, 0.15,
+  "A4",          0.42, 0.43,
+  "A5",          0.60, 0.60,
+  "A6",          0.30, 0.80
+)
+simulate <- function(alternative, n, h = 0.1) {
+  mu <- means |> filter(alternative == .env$alternative)
+  tibble(y1 = runif(n, mu$y1 - h, mu$y1 + h),
+         y2 = runif(n, mu$y2 - h, mu$y2 + h))
 }
 ```
 
@@ -55,7 +64,7 @@ simulate <- function(alternative, n) {
 
 ``` r
 
-design <- pareto_design(alternatives = rownames(means), objectives = c("y1", "y2"),
+design <- pareto_design(alternatives = means$alternative, objectives = c("y1", "y2"),
                         bounds = c(0, 1), alpha = 0.05, epsilon = 0.05,
                         max_evaluations = 3000)
 design
@@ -126,12 +135,12 @@ evaluations come from an external simulator or a cluster.
 
 ``` r
 
-state <- initialize_pareto(design)
 set.seed(2)
-for (k in design$alternatives) {
-  ev <- simulate(k, 5); ev$alternative <- k
-  state <- update_objectives(state, ev)
-}
+first_round <- design$alternatives |>
+  map(\(k) simulate(k, 5) |> mutate(alternative = k)) |>
+  list_rbind()
+state <- initialize_pareto(design) |>
+  update_objectives(first_round)
 choose_next_evaluation(state, n = 3)
 #> # A tibble: 3 × 4
 #>   alternative score width n_evaluations

@@ -3,6 +3,8 @@
 ``` r
 
 library(paretoinfer)
+library(dplyr)
+library(purrr)
 ```
 
 Identification with confidence boxes does not care whether the frontier
@@ -15,12 +17,13 @@ near-ties, and shows what the three sets look like in each case.
 
 make_sim <- function(means, h = 0.08) {
   function(alternative, n) {
-    mu <- means[alternative, ]
-    data.frame(y1 = runif(n, mu[1] - h, mu[1] + h), y2 = runif(n, mu[2] - h, mu[2] + h))
+    mu <- means |> filter(alternative == .env$alternative)
+    tibble(y1 = runif(n, mu$y1 - h, mu$y1 + h),
+           y2 = runif(n, mu$y2 - h, mu$y2 + h))
   }
 }
 run <- function(means, epsilon = 0.04, seed = 1, ...) {
-  d <- pareto_design(alternatives = rownames(means), objectives = c("y1", "y2"),
+  d <- pareto_design(alternatives = means$alternative, objectives = c("y1", "y2"),
                      bounds = c(0, 1), alpha = 0.05, epsilon = epsilon, max_evaluations = 4000, ...)
   set.seed(seed)
   pareto_run(d, make_sim(means), batch = 5, initial = 5)
@@ -31,8 +34,15 @@ run <- function(means, epsilon = 0.04, seed = 1, ...) {
 
 ``` r
 
-convex <- rbind(A = c(0.10, 0.80), B = c(0.25, 0.50), C = c(0.45, 0.30), D = c(0.80, 0.15),
-                E = c(0.50, 0.60), F = c(0.70, 0.45))
+convex <- tribble(
+  ~alternative,  ~y1,  ~y2,
+  "A",          0.10, 0.80,
+  "B",          0.25, 0.50,
+  "C",          0.45, 0.30,
+  "D",          0.80, 0.15,
+  "E",          0.50, 0.60,
+  "F",          0.70, 0.45
+)
 s <- run(convex)
 plausible_pareto_set(s)
 #> 
@@ -57,10 +67,18 @@ select it. The boxes certify it without difficulty.
 
 ``` r
 
-concave <- rbind(A = c(0.10, 0.80), B = c(0.30, 0.65), C = c(0.45, 0.55), D = c(0.60, 0.30),
-                 E = c(0.80, 0.10), F = c(0.55, 0.70))
+concave <- tribble(
+  ~alternative,  ~y1,  ~y2,
+  "A",          0.10, 0.80,
+  "B",          0.30, 0.65,
+  "C",          0.45, 0.55,
+  "D",          0.60, 0.30,
+  "E",          0.80, 0.10,
+  "F",          0.55, 0.70
+)
 s <- run(concave)
-plausible_pareto_set(s)$table[, c("alternative", "status", "dominated_by", "n_evaluations")]
+plausible_pareto_set(s)$table |>
+  select(alternative, status, dominated_by, n_evaluations)
 #> # A tibble: 6 × 4
 #>   alternative status              dominated_by n_evaluations
 #>   <chr>       <chr>               <chr>                <int>
@@ -81,10 +99,18 @@ Two clusters of optimal alternatives with a dominated gap between them.
 
 ``` r
 
-disconnected <- rbind(A = c(0.10, 0.85), B = c(0.15, 0.75), C = c(0.70, 0.20), D = c(0.80, 0.12),
-                      E = c(0.45, 0.55), F = c(0.40, 0.65))
+disconnected <- tribble(
+  ~alternative,  ~y1,  ~y2,
+  "A",          0.10, 0.85,
+  "B",          0.15, 0.75,
+  "C",          0.70, 0.20,
+  "D",          0.80, 0.12,
+  "E",          0.45, 0.55,
+  "F",          0.40, 0.65
+)
 s <- run(disconnected)
-plausible_pareto_set(s)$table[, c("alternative", "status", "dominated_by", "n_evaluations")]
+plausible_pareto_set(s)$table |>
+  select(alternative, status, dominated_by, n_evaluations)
 #> # A tibble: 6 × 4
 #>   alternative status            dominated_by n_evaluations
 #>   <chr>       <chr>             <chr>                <int>
@@ -110,9 +136,16 @@ its budget.
 
 ``` r
 
-ties <- rbind(A = c(0.20, 0.60), B = c(0.21, 0.61), C = c(0.60, 0.20), D = c(0.50, 0.50))
+ties <- tribble(
+  ~alternative,  ~y1,  ~y2,
+  "A",          0.20, 0.60,
+  "B",          0.21, 0.61,
+  "C",          0.60, 0.20,
+  "D",          0.50, 0.50
+)
 s <- run(ties, epsilon = 0.04)
-plausible_pareto_set(s)$table[, c("alternative", "status", "dominated_by", "n_evaluations")]
+plausible_pareto_set(s)$table |>
+  select(alternative, status, dominated_by, n_evaluations)
 #> # A tibble: 4 × 4
 #>   alternative status              dominated_by n_evaluations
 #>   <chr>       <chr>               <chr>                <int>
@@ -121,7 +154,8 @@ plausible_pareto_set(s)$table[, c("alternative", "status", "dominated_by", "n_ev
 #> 3 C           certified_optimal   NA                      50
 #> 4 D           uncertain           NA                    3390
 s_tight <- run(ties, epsilon = 0.005)
-glance(s_tight)[, c("n_evaluations", "n_uncertain", "stopping_reason")]
+glance(s_tight) |>
+  select(n_evaluations, n_uncertain, stopping_reason)
 #> # A tibble: 1 × 3
 #>   n_evaluations n_uncertain stopping_reason
 #>           <int>       <int> <chr>          

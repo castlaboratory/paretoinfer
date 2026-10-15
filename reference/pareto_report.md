@@ -26,8 +26,9 @@ A list of class `pareto_report`.
 
 ``` r
 design <- pareto_design(alternatives = 2, objectives = 2, bounds = c(0, 1), epsilon = 0.1)
-state <- update_objectives(initialize_pareto(design),
-  data.frame(alternative = c("A1", "A2"), y1 = c(0.2, 0.8), y2 = c(0.3, 0.9)))
+state <- initialize_pareto(design) |>
+  update_objectives(tibble::tibble(alternative = c("A1", "A2"),
+                                   y1 = c(0.2, 0.8), y2 = c(0.3, 0.9)))
 pareto_report(state)
 #> 
 #> ── Pareto identification report ────────────────────────────────────────────────

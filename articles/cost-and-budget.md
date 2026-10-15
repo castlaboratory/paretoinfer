@@ -3,6 +3,8 @@
 ``` r
 
 library(paretoinfer)
+library(dplyr)
+library(purrr)
 ```
 
 Evaluating an alternative is rarely free, and rarely equally expensive
@@ -14,11 +16,19 @@ it runs out.
 
 ``` r
 
-means <- rbind(A1 = c(0.15, 0.70), A2 = c(0.40, 0.40), A3 = c(0.70, 0.15),
-               A4 = c(0.42, 0.43), A5 = c(0.60, 0.60), A6 = c(0.30, 0.80))
+means <- tribble(
+  ~alternative,   ~y1,  ~y2,
+  "A1",          0.15, 0.70,
+  "A2",          0.40, 0.40,
+  "A3",          0.70, 0.15,
+  "A4",          0.42, 0.43,
+  "A5",          0.60, 0.60,
+  "A6",          0.30, 0.80
+)
 simulate <- function(alternative, n, h = 0.1) {
-  mu <- means[alternative, ]
-  data.frame(y1 = runif(n, mu[1] - h, mu[1] + h), y2 = runif(n, mu[2] - h, mu[2] + h))
+  mu <- means |> filter(alternative == .env$alternative)
+  tibble(y1 = runif(n, mu$y1 - h, mu$y1 + h),
+         y2 = runif(n, mu$y2 - h, mu$y2 + h))
 }
 ```
 
@@ -29,7 +39,7 @@ budget of 400 units the procedure stops before anything is certified.
 
 ``` r
 
-design <- pareto_design(alternatives = rownames(means), objectives = c("y1", "y2"),
+design <- pareto_design(alternatives = means$alternative, objectives = c("y1", "y2"),
                         bounds = c(0, 1), alpha = 0.05, epsilon = 0.05,
                         cost = c(1, 1, 1, 1, 5, 5), budget = 400)
 set.seed(2)
@@ -43,7 +53,8 @@ state
 #> • Plausible Pareto set: "A1", "A2", "A3", "A4", "A5", and "A6"
 #> • Certified dominated: none
 #> ℹ Stopped: budget.
-plausible_pareto_set(state)$table[, c("alternative", "status", "n_evaluations", "cost")]
+plausible_pareto_set(state)$table |>
+  select(alternative, status, n_evaluations, cost)
 #> # A tibble: 6 × 4
 #>   alternative status    n_evaluations  cost
 #>   <chr>       <chr>             <int> <dbl>
@@ -104,17 +115,19 @@ without a new design that includes it.
 
 ``` r
 
-design2 <- pareto_design(alternatives = rownames(means), objectives = c("y1", "y2"),
+design2 <- pareto_design(alternatives = means$alternative, objectives = c("y1", "y2"),
                          bounds = c(0, 1), alpha = 0.05, epsilon = 0.05,
                          cost = c(1, 1, 1, 1, 5, 5), budget = 4000)
 set.seed(2)
 state2 <- pareto_run(design2, simulate, batch = 5, initial = 5)
-glance(state2)[, c("n_evaluations", "total_cost", "n_dominated", "identified", "stopping_reason")]
+glance(state2) |>
+  select(n_evaluations, total_cost, n_dominated, identified, stopping_reason)
 #> # A tibble: 1 × 5
 #>   n_evaluations total_cost n_dominated identified stopping_reason
 #>           <int>      <dbl>       <int> <lgl>      <chr>          
 #> 1           810       1190           3 TRUE       identified
-plausible_pareto_set(state2)$table[, c("alternative", "status", "dominated_by", "n_evaluations", "cost")]
+plausible_pareto_set(state2)$table |>
+  select(alternative, status, dominated_by, n_evaluations, cost)
 #> # A tibble: 6 × 5
 #>   alternative status              dominated_by n_evaluations  cost
 #>   <chr>       <chr>               <chr>                <int> <dbl>
@@ -143,20 +156,18 @@ can be inspected at any time without invalidating anything.
 
 ``` r
 
-design3 <- pareto_design(alternatives = rownames(means), objectives = c("y1", "y2"),
-                         bounds = c(0, 1), alpha = 0.05, epsilon = 0.05, cost = c(1, 1, 1, 1, 5, 5))
-set.seed(3)
-state3 <- initialize_pareto(design3)
-for (k in design3$alternatives) {
-  ev <- simulate(k, 5); ev$alternative <- k
-  state3 <- update_objectives(state3, ev)
+design3 <- pareto_design(alternatives = means$alternative, objectives = c("y1", "y2"),
+                         bounds = c(0, 1), alpha = 0.05, epsilon = 0.05,
+                         cost = c(1, 1, 1, 1, 5, 5))
+evaluate <- function(alternative, n = 5) {
+  simulate(alternative, n) |> mutate(alternative = .env$alternative)
 }
-repeat {
-  sets <- plausible_pareto_set(state3)
-  if (sets$identified || state3$total_cost >= 1500) break
-  nxt <- choose_next_evaluation(state3)
-  ev <- simulate(nxt$alternative, 5); ev$alternative <- nxt$alternative
-  state3 <- update_objectives(state3, ev)
+set.seed(3)
+state3 <- initialize_pareto(design3) |>
+  update_objectives(design3$alternatives |> map(evaluate) |> list_rbind())
+while (!plausible_pareto_set(state3)$identified && state3$total_cost < 1500) {
+  proposal <- choose_next_evaluation(state3)
+  state3 <- state3 |> update_objectives(evaluate(proposal$alternative))
 }
 state3
 #> 
