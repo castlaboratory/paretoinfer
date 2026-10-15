@@ -78,12 +78,13 @@ stopping_reason <- function(state, sets) {
 #' @export
 #' @examples
 #' design <- pareto_design(alternatives = 3, objectives = 2, bounds = c(0, 1), epsilon = 0.05)
-#' state <- initialize_pareto(design)
 #' set.seed(1)
-#' ev <- data.frame(alternative = rep(c("A1", "A2", "A3"), each = 40),
-#'                  y1 = runif(120, c(0.1, 0.5, 0.6), c(0.3, 0.7, 0.8)),
-#'                  y2 = runif(120, c(0.6, 0.1, 0.6), c(0.8, 0.3, 0.8)))
-#' plausible_pareto_set(update_objectives(state, ev))
+#' ev <- tibble::tibble(alternative = rep(c("A1", "A2", "A3"), each = 40),
+#'                      y1 = runif(120, c(0.1, 0.5, 0.6), c(0.3, 0.7, 0.8)),
+#'                      y2 = runif(120, c(0.6, 0.1, 0.6), c(0.8, 0.3, 0.8)))
+#' initialize_pareto(design) |>
+#'   update_objectives(ev) |>
+#'   plausible_pareto_set()
 plausible_pareto_set <- function(state) {
   assert_state(state)
   tab <- compute_sets(state)

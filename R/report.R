@@ -13,8 +13,9 @@
 #' @export
 #' @examples
 #' design <- pareto_design(alternatives = 2, objectives = 2, bounds = c(0, 1), epsilon = 0.1)
-#' state <- update_objectives(initialize_pareto(design),
-#'   data.frame(alternative = c("A1", "A2"), y1 = c(0.2, 0.8), y2 = c(0.3, 0.9)))
+#' state <- initialize_pareto(design) |>
+#'   update_objectives(tibble::tibble(alternative = c("A1", "A2"),
+#'                                    y1 = c(0.2, 0.8), y2 = c(0.3, 0.9)))
 #' pareto_report(state)
 pareto_report <- function(state) {
   assert_state(state)
@@ -63,8 +64,9 @@ print.pareto_report <- function(x, ...) {
 #' @exportS3Method generics::tidy paretoinfer_state
 #' @examples
 #' design <- pareto_design(alternatives = 2, objectives = 2, bounds = c(0, 1), epsilon = 0.1)
-#' state <- update_objectives(initialize_pareto(design),
-#'   data.frame(alternative = c("A1", "A2"), y1 = c(0.2, 0.8), y2 = c(0.3, 0.9)))
+#' state <- initialize_pareto(design) |>
+#'   update_objectives(tibble::tibble(alternative = c("A1", "A2"),
+#'                                    y1 = c(0.2, 0.8), y2 = c(0.3, 0.9)))
 #' tidy(state)
 tidy.paretoinfer_state <- function(x, ...) {
   assert_state(x)
@@ -117,10 +119,12 @@ glance.paretoinfer_state <- function(x, ...) {
 #' @examples
 #' design <- pareto_design(alternatives = 3, objectives = 2, bounds = c(0, 1), epsilon = 0.05)
 #' set.seed(1)
-#' ev <- data.frame(alternative = rep(c("A1", "A2", "A3"), each = 40),
-#'                  y1 = runif(120, c(0.1, 0.5, 0.6), c(0.3, 0.7, 0.8)),
-#'                  y2 = runif(120, c(0.6, 0.1, 0.6), c(0.8, 0.3, 0.8)))
-#' autoplot(update_objectives(initialize_pareto(design), ev))
+#' ev <- tibble::tibble(alternative = rep(c("A1", "A2", "A3"), each = 40),
+#'                      y1 = runif(120, c(0.1, 0.5, 0.6), c(0.3, 0.7, 0.8)),
+#'                      y2 = runif(120, c(0.6, 0.1, 0.6), c(0.8, 0.3, 0.8)))
+#' initialize_pareto(design) |>
+#'   update_objectives(ev) |>
+#'   autoplot()
 autoplot.paretoinfer_state <- function(object, objectives = c(1L, 2L), ...) {
   plot_uncertain_frontier(object, objectives = objectives)
 }

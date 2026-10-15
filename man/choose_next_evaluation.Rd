@@ -27,6 +27,6 @@ which holds for any adaptive choice.
 }
 \examples{
 design <- pareto_design(alternatives = 3, objectives = 2, bounds = c(0, 1), epsilon = 0.05)
-state <- initialize_pareto(design)
-choose_next_evaluation(state, n = 2)
+initialize_pareto(design) |>
+  choose_next_evaluation(n = 2)
 }

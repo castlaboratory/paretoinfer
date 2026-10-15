@@ -37,15 +37,26 @@ pak::pak("castlaboratory/paretoinfer")
 
 ```r
 library(paretoinfer)
-means <- rbind(A1 = c(0.2, 0.7), A2 = c(0.5, 0.4), A3 = c(0.7, 0.2), A4 = c(0.6, 0.6))
-simulate <- function(alternative, n) {
-  mu <- means[alternative, ]
-  data.frame(y1 = runif(n, mu[1] - 0.1, mu[1] + 0.1), y2 = runif(n, mu[2] - 0.1, mu[2] + 0.1))
+library(dplyr)
+
+means <- tribble(
+  ~alternative,  ~y1, ~y2,
+  "A1",          0.2, 0.7,
+  "A2",          0.5, 0.4,
+  "A3",          0.7, 0.2,
+  "A4",          0.6, 0.6
+)
+simulate <- function(alternative, n, h = 0.1) {
+  mu <- means |> filter(alternative == .env$alternative)
+  tibble(y1 = runif(n, mu$y1 - h, mu$y1 + h),
+         y2 = runif(n, mu$y2 - h, mu$y2 + h))
 }
-design <- pareto_design(alternatives = rownames(means), objectives = c("y1", "y2"),
-                        bounds = c(0, 1), alpha = 0.05, epsilon = 0.05, max_evaluations = 2000)
+
 set.seed(1)
-state <- pareto_run(design, simulate, batch = 5)
+state <- pareto_design(alternatives = means$alternative, objectives = c("y1", "y2"),
+                       bounds = c(0, 1), alpha = 0.05, epsilon = 0.05,
+                       max_evaluations = 2000) |>
+  pareto_run(simulate, batch = 5)
 state
 plausible_pareto_set(state)
 autoplot(state)   # simultaneous confidence boxes and the estimated frontier
@@ -54,8 +65,9 @@ autoplot(state)   # simultaneous confidence boxes and the estimated frontier
 Step by step, for evaluations that come from elsewhere:
 
 ```r
-state <- initialize_pareto(design)
-state <- update_objectives(state, evaluations)   # data frame: alternative, y1, y2[, cost]
+design <- state$design
+state <- initialize_pareto(design) |>
+  update_objectives(evaluations)   # data frame: alternative, y1, y2[, cost]
 choose_next_evaluation(state)
 pareto_report(state)
 ```

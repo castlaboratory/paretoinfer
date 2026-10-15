@@ -29,13 +29,19 @@ alternative is certified or the budget is exhausted.
 \examples{
 design <- pareto_design(alternatives = 4, objectives = 2, bounds = c(0, 1), epsilon = 0.05,
                         max_evaluations = 400)
-means <- rbind(c(0.2, 0.7), c(0.5, 0.4), c(0.7, 0.2), c(0.6, 0.6))
-sim <- function(alternative, n) {
-  k <- match(alternative, design$alternatives)
-  data.frame(y1 = runif(n, means[k, 1] - 0.1, means[k, 1] + 0.1),
-             y2 = runif(n, means[k, 2] - 0.1, means[k, 2] + 0.1))
+means <- tibble::tribble(
+  ~alternative, ~y1, ~y2,
+  "A1",         0.2, 0.7,
+  "A2",         0.5, 0.4,
+  "A3",         0.7, 0.2,
+  "A4",         0.6, 0.6
+)
+sim <- function(alternative, n, h = 0.1) {
+  mu <- means[means$alternative == alternative, ]
+  tibble::tibble(y1 = runif(n, mu$y1 - h, mu$y1 + h),
+                 y2 = runif(n, mu$y2 - h, mu$y2 + h))
 }
 set.seed(1)
-state <- pareto_run(design, sim)
+state <- design |> pareto_run(sim)
 state
 }
