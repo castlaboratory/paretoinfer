@@ -14,7 +14,8 @@ initialize_pareto <- function(design) {
   K <- design$K; m <- design$m
   kernels <- vector("list", K * m)
   for (idx in seq_len(K * m)) {
-    kernels[[idx]] <- seqbench::boundary_init(design$boundary, alpha = design$alpha_each, c = design$c)
+    kernels[[idx]] <- seqbench::boundary_init(design$boundary, alpha = design$alpha_each, c = design$c,
+                                              refine = !isFALSE(design$refine))
   }
   dim(kernels) <- c(K, m)
   dimnames(kernels) <- list(design$alternatives, design$objectives)
@@ -42,7 +43,10 @@ initialize_pareto <- function(design) {
 #'
 #' Feeds one or more evaluations, each a vector of objective values for one
 #' alternative, to the confidence sequences. The running intersections are
-#' updated and the three sets are recomputed.
+#' updated once per call, after all evaluations have been absorbed, and the
+#' sets are recomputed. Intersecting at fewer times keeps the guarantee and
+#' saves computation; feeding evaluations one at a time gives the tightest
+#' boxes.
 #'
 #' @param state A `paretoinfer_state`.
 #' @param evaluations Data frame with a column `alternative` (name as in the
@@ -67,14 +71,25 @@ update_objectives <- function(state, evaluations) {
   }
   d <- state$design
   ev <- validate_evaluations(evaluations, d)
+  # The kernels absorb every evaluation; the intervals are computed once per
+  # call, at the end. A running intersection over a subset of times is still
+  # valid, because the confidence sequences hold at all times simultaneously.
   for (r in seq_len(nrow(ev))) {
     k <- ev$alternative[r]
     for (i in seq_len(d$m)) {
       obj <- d$objectives[i]; b <- unname(d$bounds[, i])
       x <- (ev[[obj]][r] - b[1]) / (b[2] - b[1])
-      st <- seqbench::boundary_update(state$kernels[[k, obj]], x)
-      state$kernels[[k, obj]] <- st
-      ci <- seqbench::boundary_interval(st)
+      state$kernels[[k, obj]] <- seqbench::boundary_update(state$kernels[[k, obj]], x)
+    }
+    state$n[k] <- state$n[k] + 1L
+    state$cost[k] <- state$cost[k] + ev$cost[r]
+    state$n_evaluations <- state$n_evaluations + 1L
+    state$total_cost <- state$total_cost + ev$cost[r]
+  }
+  for (k in unique(ev$alternative)) {
+    for (i in seq_len(d$m)) {
+      obj <- d$objectives[i]; b <- unname(d$bounds[, i])
+      ci <- seqbench::boundary_interval(state$kernels[[k, obj]])
       state$estimate[k, obj] <- b[1] + (b[2] - b[1]) * ci[["estimate"]]
       if (is.na(ci[["lower"]]) || is.na(ci[["upper"]])) {
         state$cs_empty[k, obj] <- TRUE
@@ -85,18 +100,17 @@ update_objectives <- function(state, evaluations) {
         if (state$upper[k, obj] < state$lower[k, obj]) state$cs_empty[k, obj] <- TRUE
       }
     }
-    state$n[k] <- state$n[k] + 1L
-    state$cost[k] <- state$cost[k] + ev$cost[r]
-    state$n_evaluations <- state$n_evaluations + 1L
-    state$total_cost <- state$total_cost + ev$cost[r]
   }
   sets <- compute_sets(state)
-  state$history <- rbind(state$history, tibble::tibble(
-    n_evaluations = state$n_evaluations, total_cost = state$total_cost,
-    n_plausible = sum(sets$status != "certified_dominated"),
-    n_dominated = sum(sets$status == "certified_dominated"),
-    n_accepted = sum(sets$status %in% c("certified_optimal", "epsilon_optimal")),
-    n_certified_optimal = sum(sets$status == "certified_optimal")))
+  row <- list(n_evaluations = state$n_evaluations, total_cost = state$total_cost,
+              n_plausible = sum(sets$status != "certified_dominated"),
+              n_dominated = sum(sets$status == "certified_dominated"),
+              n_accepted = sum(sets$status %in% c("certified_optimal", "epsilon_optimal")),
+              n_certified_optimal = sum(sets$status == "certified_optimal"))
+  h <- state$history
+  state$history <- tibble::new_tibble(
+    stats::setNames(lapply(names(h), function(nm) c(h[[nm]], row[[nm]])), names(h)),
+    nrow = nrow(h) + 1L)
   state$stopping_reason <- stopping_reason(state, sets)
   state
 }

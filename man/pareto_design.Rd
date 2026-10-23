@@ -14,7 +14,8 @@ pareto_design(
   cost = 1,
   budget = Inf,
   max_evaluations = Inf,
-  c = 0.5
+  c = 0.5,
+  refine = TRUE
 )
 }
 \arguments{
@@ -48,6 +49,11 @@ anytime-valid).}
 
 \item{c}{Truncation constant of the betting and empirical-Bernstein bets,
 passed to \code{\link[seqbench:boundary_init]{seqbench::boundary_init()}}.}
+
+\item{refine}{For the betting boundary: refine the interval endpoints by
+bisection (default). \code{FALSE} reports the outer grid cells (1001 points on
+the rescaled objective), which is conservative, keeps the guarantee and is
+much faster when an alternative has thousands of evaluations.}
 }
 \value{
 An object of class \code{pareto_design}.

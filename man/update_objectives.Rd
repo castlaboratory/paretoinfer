@@ -19,7 +19,10 @@ The updated state.
 \description{
 Feeds one or more evaluations, each a vector of objective values for one
 alternative, to the confidence sequences. The running intersections are
-updated and the three sets are recomputed.
+updated once per call, after all evaluations have been absorbed, and the
+sets are recomputed. Intersecting at fewer times keeps the guarantee and
+saves computation; feeding evaluations one at a time gives the tightest
+boxes.
 }
 \examples{
 design <- pareto_design(alternatives = c("a", "b"), objectives = c("y1", "y2"),

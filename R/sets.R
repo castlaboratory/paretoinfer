@@ -33,7 +33,7 @@ compute_sets <- function(state) {
     if (j != k) dom[j, k] <- box_dominates(U, L, j, k)
   }
   discarded <- colSums(dom) > 0
-  survivors <- which(!discarded)
+  survivors <- unname(which(!discarded))
   dominated_by <- rep(NA_character_, K)
   for (k in which(discarded)) {
     js <- intersect(which(dom[, k]), survivors)
@@ -72,11 +72,11 @@ compute_sets <- function(state) {
     }
     on_frontier[k] <- !dominated
   }
-  tibble::tibble(alternative = d$alternatives, status = status,
-                 on_estimated_frontier = on_frontier, representative = representative,
-                 dominated_by = dominated_by,
-                 n_evaluations = unname(state$n), cost = unname(state$cost),
-                 cs_empty = unname(apply(state$cs_empty, 1, any)))
+  tibble::new_tibble(list(alternative = d$alternatives, status = unname(status),
+                          on_estimated_frontier = on_frontier, representative = representative,
+                          dominated_by = dominated_by,
+                          n_evaluations = unname(state$n), cost = unname(state$cost),
+                          cs_empty = unname(apply(state$cs_empty, 1, any))), nrow = K)
 }
 
 # Alternatives whose certificate is still open, and the survivors that keep it
@@ -87,8 +87,8 @@ open_pairs <- function(state) {
   d <- state$design; K <- d$K
   L <- state$lower; U <- state$upper; eps <- d$epsilon
   tab <- compute_sets(state)
-  survivors <- which(tab$status != "certified_dominated")
-  unc <- which(tab$status == "uncertain")
+  survivors <- unname(which(tab$status != "certified_dominated"))
+  unc <- unname(which(tab$status == "uncertain"))
   pairs <- list()
   for (k in unc) for (j in setdiff(survivors, k)) {
     if (!any(L[j, ] > U[k, ] - eps)) pairs[[length(pairs) + 1L]] <- c(j, k)
