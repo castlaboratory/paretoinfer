@@ -49,14 +49,15 @@ test_that("pareto_run identifies a well-separated frontier and stops", {
   expect_message(print(st), "Pareto")
 })
 
-test_that("choose_next_evaluation never proposes a certified alternative and honours cost", {
+test_that("choose_next_evaluation proposes only alternatives in open pairs and honours cost", {
   d <- pareto_design(alternatives = 4, objectives = 2, bounds = c(0, 1), epsilon = 0.05,
                      cost = c(1, 1, 1, 10), max_evaluations = 2000)
   set.seed(3)
   st <- suppressWarnings(pareto_run(d, sim, batch = 5, initial = 5, max_rounds = 20))
   nxt <- choose_next_evaluation(st, n = 4)
   s <- plausible_pareto_set(st)
-  expect_true(all(nxt$alternative %in% s$uncertain))
+  expect_true(all(nxt$alternative %in% s$plausible))
+  expect_true(length(s$uncertain) > 0L || nrow(nxt) == 0L)
   if ("A4" %in% nxt$alternative && nrow(nxt) > 1) {
     expect_true(nxt$score[nxt$alternative == "A4"] <= max(nxt$score))
   }

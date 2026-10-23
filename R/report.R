@@ -31,9 +31,10 @@ pareto_report <- function(state) {
       sprintf("Every objective value lies in its declared bounds; conditionally on the past, each evaluation of an alternative has the alternative's mean objective vector (fresh draws, any dependence between objectives)."),
       sprintf("The %d confidence sequences share alpha = %s by a union bound (%s each); with probability at least %s all true means lie in their running intersections at every time, and every certificate below is then true.",
               d$K * d$m, format(d$alpha), format(signif(d$alpha_each, 3)), format(1 - d$alpha)),
-      sprintf("Dominance is epsilon-dominance with epsilon = (%s): j dominates k when mu[j] <= mu[k] + epsilon in every objective.",
+      "An alternative is discarded only when another one certifiably dominates it (exact Pareto dominance), so the plausible set contains every Pareto-optimal alternative.",
+      sprintf("Accepted means epsilon-Pareto-optimal with epsilon = (%s): no alternative improves on it by more than epsilon in every objective. Certified optimal means Pareto-optimal.",
               paste(signif(d$epsilon, 3), collapse = ", ")),
-      "Certified optimal means not epsilon-dominated by any other plausible alternative; epsilon-ties keep their earliest member in design order.",
+      "Every plausible alternative, hence every Pareto-optimal one, is epsilon-dominated by one of the representatives.",
       "The estimated frontier is a point estimate without a certificate; the plausible set and the certified sets carry the guarantee."),
     versions = state$versions, created = d$created
   ), class = "pareto_report")
@@ -85,8 +86,9 @@ tidy.paretoinfer_state <- function(x, ...) {
 #' @param x A `paretoinfer_state`.
 #' @param ... Unused.
 #' @return A one-row tibble: `K`, `m`, `alpha`, `n_evaluations`, `total_cost`,
-#'   `n_frontier`, `n_plausible`, `n_certified_optimal`, `n_uncertain`,
-#'   `n_dominated`, `identified`, `stopping_reason`.
+#'   `n_frontier`, `n_plausible`, `n_accepted`, `n_certified_optimal`,
+#'   `n_uncertain`, `n_dominated`, `n_representatives`, `identified`,
+#'   `stopping_reason`.
 #' @exportS3Method generics::glance paretoinfer_state
 #' @examples
 #' design <- pareto_design(alternatives = 2, objectives = 2, bounds = c(0, 1), epsilon = 0.1)
@@ -97,8 +99,10 @@ glance.paretoinfer_state <- function(x, ...) {
   tibble::tibble(K = x$design$K, m = x$design$m, alpha = x$design$alpha,
                  n_evaluations = x$n_evaluations, total_cost = x$total_cost,
                  n_frontier = length(s$frontier), n_plausible = length(s$plausible),
+                 n_accepted = length(s$accepted),
                  n_certified_optimal = length(s$certified_optimal), n_uncertain = length(s$uncertain),
-                 n_dominated = length(s$dominated), identified = s$identified,
+                 n_dominated = length(s$dominated), n_representatives = length(s$representatives),
+                 identified = s$identified,
                  stopping_reason = x$stopping_reason)
 }
 
@@ -152,14 +156,14 @@ plot_uncertain_frontier <- function(state, objectives = c(1L, 2L)) {
   sets <- plausible_pareto_set(state)
   fr <- est[est$alternative %in% sets$frontier & !is.na(est$x), ]
   fr <- fr[order(fr$x), ]
-  status_levels <- c("certified_optimal", "uncertain", "certified_dominated")
+  status_levels <- c("certified_optimal", "epsilon_optimal", "uncertain", "certified_dominated")
   boxes$status <- factor(boxes$status, status_levels); est$status <- factor(est$status, status_levels)
   p <- ggplot2::ggplot() +
     ggplot2::geom_rect(data = boxes, ggplot2::aes(xmin = .data$xmin, xmax = .data$xmax, ymin = .data$ymin,
                                                   ymax = .data$ymax, fill = .data$status, colour = .data$status),
                        alpha = 0.15, linewidth = 0.4) +
-    ggplot2::scale_fill_manual(values = c(certified_optimal = "#1B9E77", uncertain = "#7570B3", certified_dominated = "#B0B0B0"), drop = FALSE, name = NULL) +
-    ggplot2::scale_colour_manual(values = c(certified_optimal = "#1B9E77", uncertain = "#7570B3", certified_dominated = "#7A7A7A"), drop = FALSE, name = NULL) +
+    ggplot2::scale_fill_manual(values = c(certified_optimal = "#1B9E77", epsilon_optimal = "#66A61E", uncertain = "#7570B3", certified_dominated = "#B0B0B0"), drop = FALSE, name = NULL) +
+    ggplot2::scale_colour_manual(values = c(certified_optimal = "#1B9E77", epsilon_optimal = "#66A61E", uncertain = "#7570B3", certified_dominated = "#7A7A7A"), drop = FALSE, name = NULL) +
     ggplot2::labs(x = objectives[1], y = objectives[2]) +
     ggplot2::theme_minimal() + ggplot2::theme(legend.position = "bottom")
   if (nrow(fr) > 1L) p <- p + ggplot2::geom_step(data = fr, ggplot2::aes(x = .data$x, y = .data$y), colour = "#D95F02", direction = "vh", linewidth = 0.5)

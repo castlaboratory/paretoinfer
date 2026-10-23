@@ -43,7 +43,7 @@ simulate <- function(alternative, n, h = 0.1) {
 ## A budget that runs out
 
 `A5` and `A6` cost five units per evaluation, the others one. With a budget
-of 400 units the procedure stops before anything is certified.
+of 400 units the procedure stops before every plausible alternative is accepted.
 
 ```{r budget}
 design <- pareto_design(alternatives = means$alternative, objectives = c("y1", "y2"),

@@ -46,13 +46,13 @@ design <- pareto_design(alternatives = means$alternative, objectives = c("y1", "
 `pareto_run()` evaluates the most uncertain plausible alternative next. The
 alternative is to evaluate every alternative in turn until the same stopping
 rule fires. Both are valid; the adaptive rule spends fewer evaluations because
-it stops evaluating alternatives whose status is already certified.
+it stops evaluating alternatives that take part in no open certificate.
 
 ```{r adaptive}
 set.seed(1)
 adaptive <- pareto_run(design, simulate, batch = 5, initial = 5)
 glance(adaptive) |>
-  select(n_evaluations, n_certified_optimal, n_dominated, identified)
+  select(n_evaluations, n_accepted, n_dominated, identified)
 ```
 
 ```{r uniform}
@@ -67,7 +67,7 @@ while (is.na(uniform$stopping_reason)) {
   uniform <- uniform |> update_objectives(one_round())
 }
 glance(uniform) |>
-  select(n_evaluations, n_certified_optimal, n_dominated, identified)
+  select(n_evaluations, n_accepted, n_dominated, identified)
 ```
 
 The evaluations per alternative show where the adaptive rule saved: the
@@ -117,9 +117,9 @@ not a failure. The plausible set is the honest answer: all three.
 ## The price of the tolerance
 
 The tolerance `epsilon` is what lets the procedure stop on near-ties. A
-larger tolerance certifies the near-tied `A4` sooner and ends the
-identification with fewer evaluations; a smaller one needs more evidence to
-separate `A4` from `A2`.
+larger tolerance accepts the near-tied `A4` sooner and ends the
+identification with fewer evaluations; a smaller one needs more evidence,
+eventually enough to certify that `A2` dominates `A4`.
 
 ```{r epsilon}
 run_with <- function(alpha = 0.05, epsilon = 0.05) {

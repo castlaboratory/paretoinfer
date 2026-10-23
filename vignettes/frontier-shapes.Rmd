@@ -100,11 +100,13 @@ autoplot(s)
 
 ## Near-ties
 
-Two alternatives within 0.02 of each other on both objectives, with a
-tolerance of 0.04: they are an `epsilon`-tie. The procedure keeps the first
-in design order as the representative and certifies the other as dominated by
-it; the report names the tie. With a tolerance below the gap the two could
-not be separated and the identification would run to its budget.
+Two alternatives within 0.01 of each other on both objectives, with a
+tolerance of 0.04. `A` dominates `B`, but by less than the tolerance, so the
+procedure may accept both as `epsilon`-Pareto-optimal; the representatives
+then keep one of them once the boxes are narrow enough to certify that it
+`epsilon`-covers the other. With a tolerance below the gap, the only way to
+stop is to certify the dominance itself, which needs boxes narrower than 0.01
+and usually exhausts the budget first.
 
 ```{r ties}
 ties <- tribble(
@@ -126,6 +128,7 @@ glance(s_tight) |>
 
 In every plot the boxes are the simultaneous confidence boxes, the colour is
 the status, and the orange step line joins the point estimates of the
-estimated frontier. A box that overlaps the region to the lower left of
-another box's corner cannot be certified dominated; a box entirely to the
-upper right of another one's upper-right corner (shifted by `epsilon`) is.
+estimated frontier. A box lying entirely to the upper right of another box's
+upper-right corner is certified dominated. A plausible box is accepted when
+no other plausible box reaches below its upper-right corner shifted by
+`-epsilon` in every objective.

@@ -22,12 +22,12 @@
 <text x="34" y="182.2" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#6B4C9A">Sets with certificates (every time)</text>
 <rect x="40" y="204" width="230" height="68" rx="8" fill="#EFEAF7" stroke="#6B4C9A" stroke-width="1.6"/>
 <text x="155.0" y="224.6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1A202C">certified dominated</text>
-<text x="155.0" y="245.6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#2D3748">U[j] &lt;= L[k] + epsilon</text>
+<text x="155.0" y="245.6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#2D3748">U[j] &lt;= L[k] (exact dominance)</text>
 <text x="155.0" y="260.6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#2D3748">on every objective</text>
 <rect x="290" y="204" width="240" height="68" rx="8" fill="#EFEAF7" stroke="#6B4C9A" stroke-width="1.6"/>
 <text x="410.0" y="224.6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1A202C">plausible Pareto set</text>
-<text x="410.0" y="245.6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#2D3748">not certified dominated;</text>
-<text x="410.0" y="260.6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#2D3748">certified optimal when proven</text>
+<text x="410.0" y="245.6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#2D3748">contains the Pareto set;</text>
+<text x="410.0" y="260.6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#2D3748">accepted when epsilon-optimal</text>
 <rect x="550" y="204" width="230" height="68" rx="8" fill="#EFEAF7" stroke="#6B4C9A" stroke-width="1.6"/>
 <text x="665.0" y="224.6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1A202C">estimated frontier</text>
 <text x="665.0" y="245.6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#2D3748">point estimates among</text>
@@ -37,7 +37,7 @@
 <rect x="40" y="346" width="230" height="68" rx="8" fill="#FFF8E6" stroke="#B7791F" stroke-width="1.6"/>
 <text x="155.0" y="366.6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1A202C">choose_next_evaluation()</text>
 <text x="155.0" y="387.6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#2D3748">widest normalised box per</text>
-<text x="155.0" y="402.6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#2D3748">unit cost among uncertain</text>
+<text x="155.0" y="402.6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#2D3748">unit cost in open pairs</text>
 <rect x="290" y="346" width="240" height="68" rx="8" fill="#FFF8E6" stroke="#B7791F" stroke-width="1.6"/>
 <text x="410.0" y="366.6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1A202C">pareto_run()</text>
 <text x="410.0" y="387.6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#2D3748">choose, evaluate, update</text>

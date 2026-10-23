@@ -14,16 +14,18 @@ choose_next_evaluation(state, n = 1L)
 \value{
 A tibble with columns \code{alternative}, \code{score} (normalised width per
 unit cost), \code{width} (largest normalised width over objectives) and
-\code{n_evaluations}; zero rows when nothing is uncertain.
+\code{n_evaluations}; zero rows when no certificate is open.
 }
 \description{
-Scores every uncertain alternative by the width of its simultaneous
-confidence box, normalised by the objective ranges and divided by its
-evaluation cost, and returns the highest-scoring ones. Certified
-alternatives (dominated or optimal) are never proposed: more evaluations
-cannot change their certificate. The rule is a heuristic that targets the
-ambiguous comparisons; it does not affect the validity of the certificates,
-which holds for any adaptive choice.
+A certificate is open when a plausible alternative \code{k} may still be
+dominated by more than \code{epsilon} by another plausible alternative \code{j}
+without \code{j} being certified to dominate it. Both members of every open pair
+are candidates: closing the pair needs the box of \code{k}, the box of \code{j}, or
+both, to shrink. Candidates are scored by the width of their simultaneous
+confidence box, normalised by the objective ranges and divided by the
+evaluation cost, and the highest-scoring ones are returned. Alternatives that
+take part in no open pair are never proposed. The rule decides only where to
+spend evaluations; the certificates are valid for any adaptive choice.
 }
 \examples{
 design <- pareto_design(alternatives = 3, objectives = 2, bounds = c(0, 1), epsilon = 0.05)

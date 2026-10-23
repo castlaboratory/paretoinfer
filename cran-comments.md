@@ -1,12 +1,12 @@
-# paretoinfer 0.1.0
+# paretoinfer 0.2.0
 
 ## Resubmission
 
-This is a resubmission of the first release. The pre-test of 2026-10-09 failed
-on Windows with "Package required but not available: 'seqbench'". `seqbench`
-0.1.0 (same authors) had been published on CRAN on 2026-10-08 and its Windows
-binaries for r-release and r-devel were not yet built at the time of the
-pre-test. They are available now, so the package is unchanged.
+Version 0.1.0 was submitted on 2026-10-15 and withdrawn at our request before
+review was completed, because we found a flaw in its certificate logic (an
+alternative could be discarded through a chain of tolerance-based
+certificates, which in rare configurations removed every Pareto-optimal
+alternative). Version 0.2.0 corrects it; see NEWS.md.
 
 The words flagged as possibly misspelled in the Description are correct:
 "Waudby" and "Ramdas" are the surnames of the authors of the cited paper

@@ -16,19 +16,22 @@ test_that("certificates follow the box logic", {
   expect_equal(s$dominated, "A2")
   expect_equal(s$table$dominated_by[2], "A1")
   expect_setequal(s$plausible, c("A1", "A3"))
-  # A1 is certified optimal: A2 is worse in y1 (L=5 > U=1) and A3 is worse in y2 (L=3 > U=1)
+  # A1 is certified optimal: A3 cannot dominate it (L[A3, 2] = 3 > U[A1, 2] = 1)
   expect_true("A1" %in% s$certified_optimal)
-  # A3 is certified optimal: A1 is worse in y1? L[A1,1]=0 > U[A3,1]=0 is false, so A3 is uncertain
+  # A1 might still dominate A3 in y1 (L[A1, 1] = 0 is not > U[A3, 1] = 0), so A3 stays open
   expect_equal(s$uncertain, "A3")
   expect_false(s$identified)
 })
 
-test_that("epsilon widens dominance and the estimated frontier ignores certificates", {
+test_that("epsilon decides acceptance, never discarding", {
   lower <- rbind(c(0, 0), c(0.5, 0.5)); upper <- rbind(c(1, 1), c(1.5, 1.5))
   s0 <- plausible_pareto_set(fake_state(lower, upper, epsilon = 0))
   expect_length(s0$dominated, 0L)
-  s1 <- plausible_pareto_set(fake_state(lower, upper, epsilon = 0.5))
-  expect_equal(s1$dominated, "A2")
+  expect_false(s0$identified)
+  s1 <- plausible_pareto_set(fake_state(lower, upper, epsilon = 1.6))
+  expect_length(s1$dominated, 0L)
+  expect_setequal(s1$accepted, c("A1", "A2"))
+  expect_true(s1$identified)
   # estimated frontier: A1 estimate (0.5, 0.5) dominates A2 estimate (1, 1)
   expect_equal(s0$frontier, "A1")
 })
@@ -39,6 +42,7 @@ test_that("identification is declared when nothing is uncertain", {
   expect_true(s$identified)
   expect_equal(s$certified_optimal, "A1")
   expect_equal(s$dominated, "A2")
+  expect_equal(s$representatives, "A1")
 })
 
 test_that("a fresh state has everything uncertain and nothing on the frontier", {
@@ -49,17 +53,47 @@ test_that("a fresh state has everything uncertain and nothing on the frontier", 
   expect_equal(choose_next_evaluation(initialize_pareto(d), n = 3)$width, rep(1, 3))
 })
 
-test_that("epsilon-ties keep one representative and still identify", {
+test_that("near-ties are accepted together and covered by one representative", {
   lower <- rbind(c(0.40, 0.40), c(0.41, 0.41), c(0.90, 0.90)); upper <- lower + 0.02
   s <- plausible_pareto_set(fake_state(lower, upper, epsilon = 0.1))
-  expect_equal(s$plausible, "A1")
-  expect_setequal(s$dominated, c("A2", "A3"))
-  expect_equal(s$table$dominated_by, c(NA, "A1", "A1"))
-  expect_equal(s$certified_optimal, "A1")
+  expect_setequal(s$plausible, c("A1", "A2"))
+  expect_equal(s$dominated, "A3")
+  expect_equal(s$table$dominated_by, c(NA, NA, "A1"))
+  expect_setequal(s$accepted, c("A1", "A2"))
+  expect_equal(s$representatives, "A1")
   expect_true(s$identified)
-  # a one-directional dominator takes precedence over a tied one
-  lower <- rbind(c(0.40, 0.40), c(0.41, 0.41), c(0.10, 0.10)); upper <- lower + 0.02
-  s <- plausible_pareto_set(fake_state(lower, upper, epsilon = 0.1))
-  expect_equal(s$plausible, "A3")
-  expect_equal(s$table$dominated_by[1:2], c("A3", "A3"))
+})
+
+test_that("a cycle of epsilon-dominance cannot discard the frontier", {
+  # Three Pareto-optimal alternatives; each epsilon-dominates the next (0.10),
+  # so discarding by epsilon-dominance would remove all three.
+  a <- 0.40; b <- 0.452; c <- 0.504
+  mu <- rbind(c(a, b, c), c(c, a, b), c(b, c, a))
+  s <- plausible_pareto_set(fake_state(mu - 0.005, mu + 0.005, epsilon = 0.1))
+  expect_length(s$dominated, 0L)
+  expect_setequal(s$plausible, c("A1", "A2", "A3"))
+  expect_setequal(s$accepted, c("A1", "A2", "A3"))
+  expect_true(length(s$representatives) >= 1L)
+  # with small boxes and no tolerance they are certified exactly optimal
+  s0 <- plausible_pareto_set(fake_state(mu - 0.005, mu + 0.005, epsilon = 0))
+  expect_setequal(s0$certified_optimal, c("A1", "A2", "A3"))
+})
+
+test_that("box dominance is transitive, so the dominator named is a survivor", {
+  lower <- rbind(c(0, 0), c(1, 1), c(2, 2)); upper <- lower + 0.5
+  s <- plausible_pareto_set(fake_state(lower, upper))
+  expect_equal(s$plausible, "A1")
+  expect_equal(s$table$dominated_by, c(NA, "A1", "A1"))
+})
+
+test_that("an alternative that blocks an open certificate is a sampling candidate", {
+  # A2 is accepted against A1 only if A1's box is narrow; A1 is certified optimal
+  # with respect to A2 already, but A2 stays open while A1's box is wide.
+  lower <- rbind(c(0.40, 0.10), c(0.45, 0.50)); upper <- rbind(c(0.60, 0.20), c(0.47, 0.52))
+  st <- fake_state(lower, upper, epsilon = 0.05)
+  s <- plausible_pareto_set(st)
+  expect_equal(s$uncertain, "A2")
+  nxt <- choose_next_evaluation(st, n = 2)
+  expect_setequal(nxt$alternative, c("A1", "A2"))
+  expect_equal(nxt$alternative[1], "A1")   # the wider box is evaluated first
 })

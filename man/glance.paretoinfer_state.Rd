@@ -13,8 +13,9 @@
 }
 \value{
 A one-row tibble: \code{K}, \code{m}, \code{alpha}, \code{n_evaluations}, \code{total_cost},
-\code{n_frontier}, \code{n_plausible}, \code{n_certified_optimal}, \code{n_uncertain},
-\code{n_dominated}, \code{identified}, \code{stopping_reason}.
+\code{n_frontier}, \code{n_plausible}, \code{n_accepted}, \code{n_certified_optimal},
+\code{n_uncertain}, \code{n_dominated}, \code{n_representatives}, \code{identified},
+\code{stopping_reason}.
 }
 \description{
 Glance at an identification

@@ -8,21 +8,25 @@
 #' boundary and the budget.
 #'
 #' @section Dominance and guarantee:
-#' Alternative `j` *epsilon-dominates* `k` when, for every objective `i`,
-#' `mu[j, i] <= mu[k, i] + epsilon[i]`: `j` is at least as good as `k` up to the
-#' tolerance everywhere. The package maintains one confidence sequence per
-#' alternative and objective, each at level `alpha / (K * m)`, so that with
-#' probability at least `1 - alpha` every true mean lies in its running
-#' intersection at every time. On that event every certificate the package
-#' issues is true: an alternative reported as *certified dominated* is truly
-#' epsilon-dominated by the alternative named, and one reported as *certified
-#' optimal* is truly not epsilon-dominated by any other plausible alternative.
-#' When two alternatives certifiably epsilon-dominate each other (an
-#' epsilon-tie), only the later one in design order is discarded, so every tie
-#' keeps one representative; the discarded one is still truly epsilon-dominated
-#' by the alternative named. The guarantee holds under optional stopping,
-#' adaptive choice of what to evaluate next and arbitrary dependence between
-#' the objectives of one evaluation.
+#' Alternative `j` *dominates* `k` when `mu[j, i] <= mu[k, i]` for every
+#' objective `i`, with strict inequality for at least one; the Pareto set is
+#' the set of non-dominated alternatives. Alternative `k` is
+#' *epsilon-Pareto-optimal* when no alternative `j` has
+#' `mu[j, i] <= mu[k, i] - epsilon[i]` for every `i`: nothing improves on it by
+#' more than the tolerance everywhere. The package maintains one confidence
+#' sequence per alternative and objective, each at level `alpha / (K * m)`, so
+#' that with probability at least `1 - alpha` every true mean lies in its
+#' running intersection at every time. On that event: an alternative is
+#' discarded only if it is truly dominated, so the plausible set always
+#' contains the whole Pareto set; every accepted alternative is
+#' epsilon-Pareto-optimal; and the reported representatives epsilon-cover the
+#' Pareto set. Discarding uses exact dominance, never epsilon-dominance, which
+#' is not transitive: discarding by epsilon-dominance can remove every
+#' Pareto-optimal alternative through a cycle of individually true
+#' certificates. The tolerance `epsilon` decides when the procedure may stop.
+#' The guarantee holds under optional stopping, adaptive choice of what to
+#' evaluate next and arbitrary dependence between the objectives of one
+#' evaluation.
 #'
 #' @param alternatives Character vector of alternative names, or a single integer
 #'   `K` (names `"A1"`, ..., `"AK"`).
@@ -32,10 +36,11 @@
 #'   or one vector `c(a, b)` used for all. Evaluations outside the bounds are
 #'   refused, never clipped.
 #' @param alpha Error level of the simultaneous guarantee.
-#' @param epsilon Tolerance of practical dominance, per objective (length `m`) or
-#'   a single value, in objective units. Zero means exact dominance; positive
-#'   values operationalise ties and are required for the procedure to stop on
-#'   near-ties.
+#' @param epsilon Tolerance of the acceptance rule, per objective (length `m`) or
+#'   a single value, in objective units. An alternative is accepted once no other
+#'   plausible alternative can improve on it by more than `epsilon` in every
+#'   objective. Positive values are required for the procedure to stop on
+#'   (near-)ties; zero demands exact certification.
 #' @param boundary Confidence-sequence boundary from [seqbench::seqbench_boundaries()]
 #'   (`"betting"` by default; `"naive_fixed"` is refused because it is not
 #'   anytime-valid).

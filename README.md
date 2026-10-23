@@ -13,18 +13,21 @@ noisy (and possibly correlated) simulation, an alternative can look dominated
 purely by sampling error. `paretoinfer` maintains simultaneous anytime-valid
 confidence sequences for every objective of every alternative (from
 [seqbench](https://CRAN.R-project.org/package=seqbench)) and reports, at any
-time, three sets:
+time:
 
 - the **estimated frontier** (a point estimate),
 - the **plausible Pareto set**: alternatives that cannot yet be certified as
-  `epsilon`-dominated, with the subset **certified optimal**, and
-- the **certified dominated** alternatives, each with the alternative that
-  dominates it.
+  dominated, with the subset **accepted** as `epsilon`-Pareto-optimal,
+- the **certified dominated** alternatives, each with a plausible alternative
+  that dominates it, and
+- **representatives** that `epsilon`-cover the plausible set.
 
 With probability at least `1 - alpha`, every certificate ever issued is true,
-under optional stopping and adaptive choice of what to evaluate next. The
+under optional stopping and adaptive choice of what to evaluate next: the
+plausible set contains every Pareto-optimal alternative, and every accepted
+alternative is within `epsilon` of the Pareto set. The
 package also proposes the next alternative to evaluate, concentrating effort
-on the ambiguous comparisons, and records an auditable result contract.
+on the open comparisons, and records an auditable result contract.
 
 ## Installation
 
@@ -76,7 +79,7 @@ pareto_report(state)
 
 <img src="man/figures/architecture.svg" alt="Architecture of paretoinfer: design and state, sets with certificates, sampling rule and outputs" width="100%" />
 
-<img src="man/figures/workflow.svg" alt="Workflow of paretoinfer: choose, evaluate, update and compute the sets until every alternative is certified" width="100%" />
+<img src="man/figures/workflow.svg" alt="Workflow of paretoinfer: choose, evaluate, update and compute the sets until every plausible alternative is accepted" width="100%" />
 
 ## Related software
 
@@ -86,7 +89,7 @@ space; for that see [BoTorch](https://botorch.org),
 [rmoo](https://cran.r-project.org/package=rmoo) or
 [moocore](https://cran.r-project.org/package=moocore). It targets the
 finite-alternative *identification* problem (Pareto set identification in
-bandits: Auer et al. 2016; Kone, Kaufmann and Richert 2024; multi-objective
+bandits: Auer et al. 2016; Kone, Kaufmann and Richert 2023; multi-objective
 ranking and selection) with anytime-valid guarantees, and shares its
 sequential core with [seqbench](https://CRAN.R-project.org/package=seqbench).
 
@@ -95,8 +98,9 @@ sequential core with [seqbench](https://CRAN.R-project.org/package=seqbench).
 Auer, P., Chiang, C.-K., Ortner, R. and Drugan, M. (2016). Pareto front
 identification from stochastic bandit feedback. *AISTATS 2016*, 939–947.
 
-Kone, C., Kaufmann, E. and Richert, L. (2024). Adaptive algorithms for relaxed
-Pareto set identification. *AISTATS 2024*.
+Kone, C., Kaufmann, E. and Richert, L. (2023). Adaptive algorithms for relaxed
+Pareto set identification. *Advances in Neural Information Processing Systems
+36 (NeurIPS 2023)*.
 
 Waudby-Smith, I. and Ramdas, A. (2024). Estimating means of bounded random
 variables by betting. *Journal of the Royal Statistical Society: Series B*,

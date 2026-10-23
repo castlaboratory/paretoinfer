@@ -2,19 +2,21 @@
 
 #' Choose the next alternative(s) to evaluate
 #'
-#' Scores every uncertain alternative by the width of its simultaneous
-#' confidence box, normalised by the objective ranges and divided by its
-#' evaluation cost, and returns the highest-scoring ones. Certified
-#' alternatives (dominated or optimal) are never proposed: more evaluations
-#' cannot change their certificate. The rule is a heuristic that targets the
-#' ambiguous comparisons; it does not affect the validity of the certificates,
-#' which holds for any adaptive choice.
+#' A certificate is open when a plausible alternative `k` may still be
+#' dominated by more than `epsilon` by another plausible alternative `j`
+#' without `j` being certified to dominate it. Both members of every open pair
+#' are candidates: closing the pair needs the box of `k`, the box of `j`, or
+#' both, to shrink. Candidates are scored by the width of their simultaneous
+#' confidence box, normalised by the objective ranges and divided by the
+#' evaluation cost, and the highest-scoring ones are returned. Alternatives that
+#' take part in no open pair are never proposed. The rule decides only where to
+#' spend evaluations; the certificates are valid for any adaptive choice.
 #'
 #' @param state A `paretoinfer_state`.
 #' @param n Number of alternatives to propose.
 #' @return A tibble with columns `alternative`, `score` (normalised width per
 #'   unit cost), `width` (largest normalised width over objectives) and
-#'   `n_evaluations`; zero rows when nothing is uncertain.
+#'   `n_evaluations`; zero rows when no certificate is open.
 #' @export
 #' @examples
 #' design <- pareto_design(alternatives = 3, objectives = 2, bounds = c(0, 1), epsilon = 0.05)
@@ -23,19 +25,18 @@
 choose_next_evaluation <- function(state, n = 1L) {
   assert_state(state)
   d <- state$design
-  tab <- compute_sets(state)
-  unc <- which(tab$status == "uncertain")
-  if (length(unc) == 0L) {
+  cand <- sort(unique(unlist(open_pairs(state))))
+  if (length(cand) == 0L) {
     return(tibble::tibble(alternative = character(), score = numeric(), width = numeric(), n_evaluations = integer()))
   }
   range <- d$bounds[2, ] - d$bounds[1, ]
-  width <- vapply(unc, function(k) {
+  width <- vapply(cand, function(k) {
     if (state$n[k] == 0L) return(1)
     max((state$upper[k, ] - state$lower[k, ]) / range)
   }, numeric(1))
-  cost <- pmax(d$cost[unc], .Machine$double.eps)
-  out <- tibble::tibble(alternative = d$alternatives[unc], score = width / cost, width = width,
-                        n_evaluations = unname(state$n[unc]))
+  cost <- pmax(d$cost[cand], .Machine$double.eps)
+  out <- tibble::tibble(alternative = d$alternatives[cand], score = width / cost, width = width,
+                        n_evaluations = unname(state$n[cand]))
   out <- out[order(-out$score, out$n_evaluations), ]
   utils::head(out, n)
 }
@@ -43,7 +44,7 @@ choose_next_evaluation <- function(state, n = 1L) {
 #' Run an identification to completion with a simulator
 #'
 #' Repeats "choose the next alternative, evaluate it, update" until every
-#' alternative is certified or the budget is exhausted.
+#' plausible alternative is accepted or the budget is exhausted.
 #'
 #' @param design A [pareto_design()].
 #' @param simulate A function `function(alternative, n)` returning a data frame

@@ -31,7 +31,7 @@ initialize_pareto <- function(design) {
     stopping_reason = NA_character_,
     history = tibble::tibble(n_evaluations = integer(), total_cost = numeric(),
                              n_plausible = integer(), n_dominated = integer(),
-                             n_certified_optimal = integer()),
+                             n_accepted = integer(), n_certified_optimal = integer()),
     versions = list(paretoinfer = as.character(utils::packageVersion("paretoinfer")),
                     seqbench = as.character(utils::packageVersion("seqbench")),
                     R = R.version.string)
@@ -95,6 +95,7 @@ update_objectives <- function(state, evaluations) {
     n_evaluations = state$n_evaluations, total_cost = state$total_cost,
     n_plausible = sum(sets$status != "certified_dominated"),
     n_dominated = sum(sets$status == "certified_dominated"),
+    n_accepted = sum(sets$status %in% c("certified_optimal", "epsilon_optimal")),
     n_certified_optimal = sum(sets$status == "certified_optimal")))
   state$stopping_reason <- stopping_reason(state, sets)
   state
@@ -113,8 +114,9 @@ print.paretoinfer_state <- function(x, ...) {
   cli::cli_text("{x$n_evaluations} evaluation{?s}, cost {signif(x$total_cost, 4)}.")
   cli::cli_ul(c(
     "Estimated frontier: {.val {s$frontier}}",
-    "Plausible Pareto set: {.val {s$plausible}}{if (length(s$certified_optimal)) paste0(' (certified optimal: ', paste(s$certified_optimal, collapse = ', '), ')') else ''}",
-    "Certified dominated: {if (length(s$dominated)) paste(s$dominated, collapse = ', ') else 'none'}"))
+    "Plausible Pareto set: {.val {s$plausible}}{if (length(s$accepted)) paste0(' (accepted: ', paste(s$accepted, collapse = ', '), ')') else ''}",
+    "Certified dominated: {if (length(s$dominated)) paste(s$dominated, collapse = ', ') else 'none'}",
+    "Representatives (epsilon-cover): {.val {s$representatives}}"))
   if (!is.na(x$stopping_reason)) {
     cli::cli_alert_info("Stopped: {x$stopping_reason}.")
   } else {

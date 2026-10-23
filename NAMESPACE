@@ -19,7 +19,9 @@ export(plausible_pareto_set)
 export(plot_uncertain_frontier)
 export(tidy)
 export(update_objectives)
-importFrom(generics,glance)
-importFrom(generics,tidy)
+importFrom(generics,
+  glance,
+  tidy
+)
 importFrom(ggplot2,autoplot)
 importFrom(rlang,.data)

@@ -1,7 +1,7 @@
 Package: paretoinfer
 Title: Sequential Identification of Approximately Pareto-Optimal
         Alternatives under Noise
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: c(
     person("André", "Leite", , "leite@castlab.org", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4718-9766")),
@@ -23,7 +23,6 @@ URL: https://castlaboratory.github.io/paretoinfer/, https://github.com/castlabor
 BugReports: https://github.com/castlaboratory/paretoinfer/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 8.0.0
 Language: en-GB
 Depends:
     R (>= 4.1)
@@ -44,3 +43,4 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.1.1

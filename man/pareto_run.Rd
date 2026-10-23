@@ -24,7 +24,7 @@ The final \code{paretoinfer_state}.
 }
 \description{
 Repeats "choose the next alternative, evaluate it, update" until every
-alternative is certified or the budget is exhausted.
+plausible alternative is accepted or the budget is exhausted.
 }
 \examples{
 design <- pareto_design(alternatives = 4, objectives = 2, bounds = c(0, 1), epsilon = 0.05,

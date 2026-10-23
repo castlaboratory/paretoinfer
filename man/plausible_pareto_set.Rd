@@ -2,7 +2,7 @@
 % Please edit documentation in R/sets.R
 \name{plausible_pareto_set}
 \alias{plausible_pareto_set}
-\title{The three sets of a Pareto identification}
+\title{The sets of a Pareto identification}
 \usage{
 plausible_pareto_set(state)
 }
@@ -12,18 +12,34 @@ plausible_pareto_set(state)
 \value{
 A list of class \code{pareto_sets} with \code{frontier} (alternatives whose
 point estimates are not dominated by the estimate of any other plausible
-alternative), \code{plausible} (not certified dominated), \code{certified_optimal}
-(plausible and certified not epsilon-dominated by any other plausible
-alternative),
-\code{uncertain} (plausible but not certified), \code{dominated} (certified
-epsilon-dominated), \code{identified} (no uncertain alternative left) and
-\code{table}, a tibble with one row per alternative: \code{status},
-\code{on_estimated_frontier}, \code{dominated_by}, \code{n_evaluations}, \code{cost},
-\code{cs_empty}.
+alternative), \code{plausible} (not certified dominated), \code{accepted}
+(plausible and certified epsilon-Pareto-optimal), \code{certified_optimal}
+(the accepted alternatives certified exactly Pareto-optimal),
+\code{uncertain} (plausible but not accepted), \code{dominated} (certified
+Pareto-dominated), \code{representatives} (a certified epsilon-cover of the
+plausible set), \code{identified} (no uncertain alternative left) and \code{table},
+a tibble with one row per alternative: \code{status} (\code{"certified_optimal"},
+\code{"epsilon_optimal"}, \code{"uncertain"} or \code{"certified_dominated"}),
+\code{on_estimated_frontier}, \code{representative}, \code{dominated_by},
+\code{n_evaluations}, \code{cost}, \code{cs_empty}.
 }
 \description{
-The three sets of a Pareto identification
+The sets of a Pareto identification
 }
+\section{Certificates}{
+
+On the event that every true mean lies in its running confidence interval
+(probability at least \code{1 - alpha}): an alternative in \code{dominated} is truly
+Pareto-dominated by the alternative named in \code{dominated_by}; every
+Pareto-optimal alternative is in \code{plausible}; every alternative in
+\code{accepted} is epsilon-Pareto-optimal (no alternative improves on it by more
+than \code{epsilon} in every objective); every alternative in \code{certified_optimal}
+is Pareto-optimal; and every alternative in \code{plausible}, hence every
+Pareto-optimal alternative, is epsilon-dominated by one of the
+\code{representatives}. Discarding uses exact dominance only; \code{epsilon} decides
+when to stop, not what to discard.
+}
+
 \examples{
 design <- pareto_design(alternatives = 3, objectives = 2, bounds = c(0, 1), epsilon = 0.05)
 set.seed(1)

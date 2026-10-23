@@ -30,10 +30,11 @@ refused, never clipped.}
 
 \item{alpha}{Error level of the simultaneous guarantee.}
 
-\item{epsilon}{Tolerance of practical dominance, per objective (length \code{m}) or
-a single value, in objective units. Zero means exact dominance; positive
-values operationalise ties and are required for the procedure to stop on
-near-ties.}
+\item{epsilon}{Tolerance of the acceptance rule, per objective (length \code{m}) or
+a single value, in objective units. An alternative is accepted once no other
+plausible alternative can improve on it by more than \code{epsilon} in every
+objective. Positive values are required for the procedure to stop on
+(near-)ties; zero demands exact certification.}
 
 \item{boundary}{Confidence-sequence boundary from \code{\link[seqbench:seqbench_boundaries]{seqbench::seqbench_boundaries()}}
 (\code{"betting"} by default; \code{"naive_fixed"} is refused because it is not
@@ -59,21 +60,25 @@ boundary and the budget.
 }
 \section{Dominance and guarantee}{
 
-Alternative \code{j} \emph{epsilon-dominates} \code{k} when, for every objective \code{i},
-\code{mu[j, i] <= mu[k, i] + epsilon[i]}: \code{j} is at least as good as \code{k} up to the
-tolerance everywhere. The package maintains one confidence sequence per
-alternative and objective, each at level \code{alpha / (K * m)}, so that with
-probability at least \code{1 - alpha} every true mean lies in its running
-intersection at every time. On that event every certificate the package
-issues is true: an alternative reported as \emph{certified dominated} is truly
-epsilon-dominated by the alternative named, and one reported as \emph{certified
-optimal} is truly not epsilon-dominated by any other plausible alternative.
-When two alternatives certifiably epsilon-dominate each other (an
-epsilon-tie), only the later one in design order is discarded, so every tie
-keeps one representative; the discarded one is still truly epsilon-dominated
-by the alternative named. The guarantee holds under optional stopping,
-adaptive choice of what to evaluate next and arbitrary dependence between
-the objectives of one evaluation.
+Alternative \code{j} \emph{dominates} \code{k} when \code{mu[j, i] <= mu[k, i]} for every
+objective \code{i}, with strict inequality for at least one; the Pareto set is
+the set of non-dominated alternatives. Alternative \code{k} is
+\emph{epsilon-Pareto-optimal} when no alternative \code{j} has
+\code{mu[j, i] <= mu[k, i] - epsilon[i]} for every \code{i}: nothing improves on it by
+more than the tolerance everywhere. The package maintains one confidence
+sequence per alternative and objective, each at level \code{alpha / (K * m)}, so
+that with probability at least \code{1 - alpha} every true mean lies in its
+running intersection at every time. On that event: an alternative is
+discarded only if it is truly dominated, so the plausible set always
+contains the whole Pareto set; every accepted alternative is
+epsilon-Pareto-optimal; and the reported representatives epsilon-cover the
+Pareto set. Discarding uses exact dominance, never epsilon-dominance, which
+is not transitive: discarding by epsilon-dominance can remove every
+Pareto-optimal alternative through a cycle of individually true
+certificates. The tolerance \code{epsilon} decides when the procedure may stop.
+The guarantee holds under optional stopping, adaptive choice of what to
+evaluate next and arbitrary dependence between the objectives of one
+evaluation.
 }
 
 \examples{
