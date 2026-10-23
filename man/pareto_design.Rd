@@ -15,6 +15,7 @@ pareto_design(
   budget = Inf,
   max_evaluations = Inf,
   c = 0.5,
+  cover = FALSE,
   refine = TRUE
 )
 }
@@ -49,6 +50,14 @@ anytime-valid).}
 
 \item{c}{Truncation constant of the betting and empirical-Bernstein bets,
 passed to \code{\link[seqbench:boundary_init]{seqbench::boundary_init()}}.}
+
+\item{cover}{If \code{TRUE}, the identification continues after every plausible
+alternative is accepted, until it is certified for every pair of plausible
+alternatives whether one epsilon-covers the other; the representatives are
+then a greedy cover computed from the resolved relation, typically much
+smaller than the plausible set. If \code{FALSE} (default), the procedure stops
+at acceptance and the representatives use the cover certificates
+available at that time.}
 
 \item{refine}{For the betting boundary: refine the interval endpoints by
 bisection (default). \code{FALSE} reports the outer grid cells (1001 points on

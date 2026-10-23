@@ -97,3 +97,21 @@ test_that("an alternative that blocks an open certificate is a sampling candidat
   expect_setequal(nxt$alternative, c("A1", "A2"))
   expect_equal(nxt$alternative[1], "A1")   # the wider box is evaluated first
 })
+
+test_that("the cover phase continues past acceptance and resolves the cover pairs", {
+  # A1 and A2 are within epsilon of each other; their boxes are too wide to
+  # certify the cover, so with cover = TRUE the identification is not finished.
+  # Narrow in y1 (enough to accept both), wide in y2 (cover still open).
+  lower <- rbind(c(0.40, 0.40), c(0.41, 0.41)); upper <- lower + rep(c(0.01, 0.20), each = 2)
+  st <- fake_state(lower, upper, epsilon = 0.1)
+  s <- plausible_pareto_set(st)
+  expect_true(s$identified)
+  expect_length(paretoinfer:::open_cover_pairs(st), 2L)
+  st$design$cover <- TRUE
+  expect_true(is.na(paretoinfer:::stopping_reason(st, paretoinfer:::compute_sets(st))))
+  expect_setequal(choose_next_evaluation(st, n = 2)$alternative, c("A1", "A2"))
+  st$upper <- lower + 0.005
+  dimnames(st$upper) <- dimnames(st$lower)
+  expect_equal(paretoinfer:::stopping_reason(st, paretoinfer:::compute_sets(st)), "identified")
+  expect_equal(plausible_pareto_set(st)$representatives, "A1")
+})

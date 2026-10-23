@@ -49,6 +49,13 @@
 #' @param max_evaluations Maximum number of evaluations; `Inf` for none.
 #' @param c Truncation constant of the betting and empirical-Bernstein bets,
 #'   passed to [seqbench::boundary_init()].
+#' @param cover If `TRUE`, the identification continues after every plausible
+#'   alternative is accepted, until it is certified for every pair of plausible
+#'   alternatives whether one epsilon-covers the other; the representatives are
+#'   then a greedy cover computed from the resolved relation, typically much
+#'   smaller than the plausible set. If `FALSE` (default), the procedure stops
+#'   at acceptance and the representatives use the cover certificates
+#'   available at that time.
 #' @param refine For the betting boundary: refine the interval endpoints by
 #'   bisection (default). `FALSE` reports the outer grid cells (1001 points on
 #'   the rescaled objective), which is conservative, keeps the guarantee and is
@@ -67,7 +74,7 @@
 #'               alpha = 0.05, epsilon = 0.02)
 pareto_design <- function(alternatives, objectives = 2L, bounds, alpha = 0.05, epsilon = 0,
                           boundary = "betting", cost = 1, budget = Inf,
-                          max_evaluations = Inf, c = 0.5, refine = TRUE) {
+                          max_evaluations = Inf, c = 0.5, cover = FALSE, refine = TRUE) {
   if (is.numeric(alternatives) && length(alternatives) == 1L) {
     k <- as.integer(alternatives)
     if (k < 2L) cli::cli_abort("At least two alternatives are needed.")
@@ -110,10 +117,11 @@ pareto_design <- function(alternatives, objectives = 2L, bounds, alpha = 0.05, e
   check_number(c, "c")
   if (c <= 0 || c >= 1) cli::cli_abort("{.arg c} must be in (0, 1).")
   if (!is.logical(refine) || length(refine) != 1L || is.na(refine)) cli::cli_abort("{.arg refine} must be TRUE or FALSE.")
+  if (!is.logical(cover) || length(cover) != 1L || is.na(cover)) cli::cli_abort("{.arg cover} must be TRUE or FALSE.")
   structure(list(
     alternatives = alternatives, objectives = objectives, K = K, m = m,
     bounds = bounds, alpha = alpha, alpha_each = alpha / (K * m), epsilon = epsilon,
-    boundary = boundary, c = c, refine = refine, cost = cost, budget = budget,
+    boundary = boundary, c = c, cover = cover, refine = refine, cost = cost, budget = budget,
     max_evaluations = max_evaluations, created = Sys.time(),
     version = as.character(utils::packageVersion("paretoinfer"))
   ), class = "pareto_design")

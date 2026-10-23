@@ -96,9 +96,25 @@ open_pairs <- function(state) {
   pairs
 }
 
+# Cover pairs among the plausible alternatives: r certifiably epsilon-covers s
+# when U[r] <= L[s] + eps, and certifiably cannot when L[r, i] > U[s, i] + eps[i]
+# for some i. A pair is open while neither holds; with `cover = TRUE` in the
+# design the identification continues until no cover pair is open, so that the
+# greedy representatives are computed from a resolved cover relation.
+open_cover_pairs <- function(state, tab = compute_sets(state)) {
+  eps <- state$design$epsilon; L <- state$lower; U <- state$upper
+  survivors <- unname(which(tab$status != "certified_dominated"))
+  pairs <- list()
+  for (r in survivors) for (s in setdiff(survivors, r)) {
+    if (!all(U[r, ] <= L[s, ] + eps) && !any(L[r, ] > U[s, ] + eps)) pairs[[length(pairs) + 1L]] <- c(r, s)
+  }
+  pairs
+}
+
 stopping_reason <- function(state, sets) {
   d <- state$design
-  if (all(sets$status != "uncertain")) return("identified")
+  if (all(sets$status != "uncertain") &&
+      (!isTRUE(d$cover) || length(open_cover_pairs(state, sets)) == 0L)) return("identified")
   if (state$total_cost >= d$budget) return("budget")
   if (state$n_evaluations >= d$max_evaluations) return("max_evaluations")
   NA_character_

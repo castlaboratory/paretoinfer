@@ -9,8 +9,12 @@
 #' both, to shrink. Candidates are scored by the width of their simultaneous
 #' confidence box, normalised by the objective ranges and divided by the
 #' evaluation cost, and the highest-scoring ones are returned. Alternatives that
-#' take part in no open pair are never proposed. The rule decides only where to
-#' spend evaluations; the certificates are valid for any adaptive choice.
+#' take part in no open pair are never proposed. When the design asks for a
+#' resolved cover (`cover = TRUE`) and no pair is open, the members of the open
+#' cover pairs are proposed instead: pairs of plausible alternatives `(r, s)`
+#' for which it is not yet certified whether `r` epsilon-covers `s`. The rule
+#' decides only where to spend evaluations; the certificates are valid for any
+#' adaptive choice.
 #'
 #' @param state A `paretoinfer_state`.
 #' @param n Number of alternatives to propose.
@@ -26,6 +30,7 @@ choose_next_evaluation <- function(state, n = 1L) {
   assert_state(state)
   d <- state$design
   cand <- sort(unique(unlist(open_pairs(state))))
+  if (length(cand) == 0L && isTRUE(d$cover)) cand <- sort(unique(unlist(open_cover_pairs(state))))
   if (length(cand) == 0L) {
     return(tibble::tibble(alternative = character(), score = numeric(), width = numeric(), n_evaluations = integer()))
   }

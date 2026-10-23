@@ -24,8 +24,12 @@ are candidates: closing the pair needs the box of \code{k}, the box of \code{j},
 both, to shrink. Candidates are scored by the width of their simultaneous
 confidence box, normalised by the objective ranges and divided by the
 evaluation cost, and the highest-scoring ones are returned. Alternatives that
-take part in no open pair are never proposed. The rule decides only where to
-spend evaluations; the certificates are valid for any adaptive choice.
+take part in no open pair are never proposed. When the design asks for a
+resolved cover (\code{cover = TRUE}) and no pair is open, the members of the open
+cover pairs are proposed instead: pairs of plausible alternatives \verb{(r, s)}
+for which it is not yet certified whether \code{r} epsilon-covers \code{s}. The rule
+decides only where to spend evaluations; the certificates are valid for any
+adaptive choice.
 }
 \examples{
 design <- pareto_design(alternatives = 3, objectives = 2, bounds = c(0, 1), epsilon = 0.05)

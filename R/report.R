@@ -34,7 +34,8 @@ pareto_report <- function(state) {
       "An alternative is discarded only when another one certifiably dominates it (exact Pareto dominance), so the plausible set contains every Pareto-optimal alternative.",
       sprintf("Accepted means epsilon-Pareto-optimal with epsilon = (%s): no alternative improves on it by more than epsilon in every objective. Certified optimal means Pareto-optimal.",
               paste(signif(d$epsilon, 3), collapse = ", ")),
-      "Every plausible alternative, hence every Pareto-optimal one, is epsilon-dominated by one of the representatives.",
+      paste("Every plausible alternative, hence every Pareto-optimal one, is epsilon-dominated by one of the representatives;",
+            if (isTRUE(d$cover)) "the cover relation was resolved before stopping." else "the representatives use the cover certificates available at stopping (design without cover = TRUE)."),
       "The estimated frontier is a point estimate without a certificate; the plausible set and the certified sets carry the guarantee."),
     versions = state$versions, created = d$created
   ), class = "pareto_report")
