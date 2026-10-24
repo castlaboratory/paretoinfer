@@ -33,6 +33,7 @@ benchmarks/out/
 # Local-only material: Claude Code context, individual plan, working memory,
 # bibliography PDFs. A fresh clone does not have these.
 CLAUDE.md
+!/paper/CLAUDE.md
 PLANO.md
 memory/
 references/
