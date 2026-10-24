@@ -1,0 +1,96 @@
+\section{The procedure}\label{sec:method}
+
+\subsection{Simultaneous confidence boxes}\label{sec:boxes}
+
+For every alternative $k$ and objective $i$ we run a confidence sequence on the evaluations of $k$ alone. Let $N_k(t)$ be the number of evaluations of $k$ up to time $t$ and let $C_{k,i}(n)\subseteq[0,1]$ be the interval computed from the first $n$ evaluations of $k$ in objective $i$, at level $\alpha/(Km)$. Our default is the hedged betting confidence sequence of \citet[Theorem~3]{waudbysmith2024}. For a candidate mean $\theta$ it tracks the wealth of two gamblers who bet, with predictable stakes, that the observations exceed or fall short of $\theta$; $\theta$ is excluded when the hedged wealth reaches $Km/\alpha$. The sequence adapts to the variance without assuming a distributional family, which matters when an objective is a rare event or an average of many runs. The predictable plug-in Hoeffding and empirical Bernstein sequences of the same paper are also available. The box of $k$ at time $t$ is the running intersection
+\[
+B_k(t)=\prod_{i=1}^m\,[L_{k,i}(t),U_{k,i}(t)]=\prod_{i=1}^m\ \bigcap_{s\in T_t} C_{k,i}\{N_k(s)\},
+\]
+where $T_t\subseteq\{0,\dots,t\}$ is any set of times at which the intervals are computed; in the software, $T_t$ contains the end of every batch. Let $\Gev$ be the event that $\mub_k\in B_k(t)$ for all $k$ and all $t$.
+
+\begin{lemma}\label{lem:boxes}
+Under Assumption~A and any allocation rule, $\Prob(\Gev)\ge1-\alpha$.
+\end{lemma}
+
+\begin{proof}
+Fix $k$, $i$ and $\theta=\mu_{k,i}$. The wealth of each gambler of alternative $k$, viewed in global time, is multiplied at time $t$ by $1+\lambda_t(X_{t,i}-\theta)$ if $A_t=k$ and by one otherwise, where the stake $\lambda_t$ is $\Fcal_{t-1}$-measurable and keeps the factor nonnegative. By Assumption~A the factor has conditional mean one, so each wealth process, and their convex combination (the hedged wealth), is a nonnegative martingale with initial value one. Ville's inequality \citep{ville1939} bounds by $\alpha/(Km)$ the probability that the hedged wealth ever reaches $Km/\alpha$, which is the only way in which $\theta$ can be excluded. The same argument applies to the Hoeffding and empirical Bernstein sequences. A union bound over the $Km$ sequences, and the fact that intersecting over any set of times cannot exclude a value that is never excluded, complete the proof.
+\end{proof}
+
+\subsection{Certificates}\label{sec:certificates}
+
+At time $t$, write $\Lb_k$ and $\Ub_k$ for the corners of $B_k(t)$. We say that $j$ \emph{box-dominates} $k$, written $j\bdom k$, if $\Ub_j\le\Lb_k$ and $\Ub_j\ne\Lb_k$. The procedure reports the following sets:
+\begin{align*}
+\Dset_t&=\{k:\ j\bdom k\text{ for some }j\}\quad\text{(discarded)},\qquad \Sset_t=[K]\setminus\Dset_t\quad\text{(plausible)},\\
+\Aset_t&=\{k\in\Sset_t:\ \text{for every } j\in\Sset_t\setminus\{k\}\text{ there is } i \text{ with } L_{j,i}>U_{k,i}-\varepsilon_i\}\quad\text{(accepted)},\\
+\Cset_t&=\{k\in\Sset_t:\ \text{for every } j\in\Sset_t\setminus\{k\}\text{ there is } i \text{ with } L_{j,i}>U_{k,i}\}\quad\text{(certified optimal)},
+\end{align*}
+and a set of representatives $\Rset_t\subseteq\Sset_t$ such that for every $s\in\Sset_t$ there is $r\in\Rset_t$ with $\Ub_r\le\Lb_s+\epsb$; the software builds $\Rset_t$ greedily, adding at each step the plausible alternative that covers the largest number of uncovered ones. The acceptance condition says that no other plausible box reaches below the upper corner of $B_k(t)$ shifted by $-\epsb$ in every objective. By construction $\Cset_t\subseteq\Aset_t$, and the tolerance enters only $\Aset_t$ and $\Rset_t$.
+
+\begin{lemma}\label{lem:order}
+If $\Lb_k\le\Ub_k$ for every $k$, the relation $\bdom$ is irreflexive and transitive. Consequently every $k\in\Dset_t$ is box-dominated by some $s\in\Sset_t$.
+\end{lemma}
+
+\begin{proof}
+Irreflexivity: $k\bdom k$ would require $\Ub_k\le\Lb_k$ with $\Ub_k\ne\Lb_k$, contradicting $\Lb_k\le\Ub_k$. Transitivity: if $l\bdom j$ and $j\bdom k$, then $\Ub_l\le\Lb_j\le\Ub_j\le\Lb_k$, and in a coordinate $i$ with $U_{j,i}<L_{k,i}$ we get $U_{l,i}<L_{k,i}$. A strict partial order on a finite set has no infinite descending chain, so following box-dominators from $k\in\Dset_t$ ends at a plausible alternative, which box-dominates $k$ by transitivity.
+\end{proof}
+
+\begin{theorem}\label{thm:validity}
+On the event $\Gev$, simultaneously for all $t\ge0$:
+\begin{enumerate}[label=(\roman*),leftmargin=*,itemsep=0pt]
+\item every $k\in\Dset_t$ is dominated, $s\prec k$, by some plausible $s\in\Sset_t$, which the software reports;
+\item $\Pset\subseteq\Sset_t$;
+\item $\Aset_t\subseteq\Peps$;
+\item every $k\in\Cset_t$ is Pareto-optimal, and no $j\ne k$ satisfies $\mub_j\le\mub_k$;
+\item $\Rset_t$ $\epsb$-covers $\Pset$.
+\end{enumerate}
+Hence the probability that any of these statements is false at any time is at most $\alpha$, whatever the allocation rule and whenever the analyst stops. In particular, if $\tau$ is any stopping time with $\Aset_\tau=\Sset_\tau$, then $\widehat\Sset=\Sset_\tau$ satisfies the target~\eqref{eq:target} with probability at least $1-\alpha$.
+\end{theorem}
+
+\begin{proof}
+On $\Gev$ every box contains its mean, so $\Lb_k\le\Ub_k$ and Lemma~\ref{lem:order} applies. (i) If $s\bdom k$, then $\mub_s\le\Ub_s\le\Lb_k\le\mub_k$, and in a coordinate with $U_{s,i}<L_{k,i}$ we have $\mu_{s,i}<\mu_{k,i}$; hence $s\prec k$. (ii) follows from (i). (iii) Let $k\in\Aset_t$ and suppose that $\mub_j\le\mub_k-\epsb$ for some $j\ne k$. If $j\in\Sset_t$, acceptance gives $i$ with $\mu_{j,i}\ge L_{j,i}>U_{k,i}-\varepsilon_i\ge\mu_{k,i}-\varepsilon_i$, a contradiction. If $j\in\Dset_t$, by (i) there is $s\in\Sset_t$ with $\mub_s\le\mub_j\le\mub_k-\epsb$, and $s\ne k$ because $s=k$ would give $\mub_k\le\mub_j\le\mub_k-\epsb$ together with $s\prec j$, which is impossible; the first case applied to $s$ gives the contradiction. (iv) The same argument with $\epsb=\bm0$ and weak inequalities. (v) For $p\in\Pset\subseteq\Sset_t$ there is $r\in\Rset_t$ with $\mub_r\le\Ub_r\le\Lb_p+\epsb\le\mub_p+\epsb$.
+\end{proof}
+
+Because the boxes are nested in time and the plausible set only shrinks, a certificate once issued is never withdrawn: $\Dset_t$ is nondecreasing, and an alternative that is accepted stays accepted while it is plausible. The report of an identification can therefore be audited at any time against its history.
+
+\subsection{Allocation and stopping}\label{sec:allocation}
+
+At time $t$, call a pair $(j,k)$ of distinct plausible alternatives \emph{open} if $j$ may still improve on $k$ by more than the tolerance without being certified to dominate it, that is, if neither $j\bdom k$ nor $L_{j,i}>U_{k,i}-\varepsilon_i$ for some $i$. A plausible alternative is accepted exactly when it is the second member of no open pair, so the identification ends when no pair is open. Closing an open pair requires the box of $j$, the box of $k$, or both, to shrink. The allocation rule evaluates both: among all alternatives that belong to an open pair, it evaluates $b$ times the one with the largest normalized width $w_k(t)=\max_i\{U_{k,i}(t)-L_{k,i}(t)\}$ per unit of evaluation cost (Algorithm~\ref{alg:procedure}).
+
+\begin{algorithm}[t]
+\spacingset{1}
+\caption{Anytime-valid Pareto set identification}\label{alg:procedure}
+\begin{algorithmic}[1]
+\Require alternatives $[K]$, objectives with bounds, tolerance $\epsb$, level $\alpha$, batch size $b$, initial size $n_0$, costs $c_k$, budget
+\State evaluate every alternative $n_0$ times; compute the boxes $B_k$
+\While{some pair is open and the budget is not exhausted}
+  \State $\mathcal{O}\gets\{a:\ a\text{ belongs to an open pair}\}$
+  \State $a\gets\argmax_{a\in\mathcal{O}} w_a/c_a$ \Comment{ties broken by fewer evaluations}
+  \State evaluate $a$ $b$ times; update its confidence sequences and intersect its box
+\EndWhile
+\State \Return $\Sset_t,\Aset_t,\Cset_t,\Dset_t$ with dominators, $\Rset_t$, boxes and history
+\end{algorithmic}
+\end{algorithm}
+
+The choice of candidates is the second place where the obvious rule fails. If only alternatives whose status is undecided are evaluated, as in our first implementation, an accepted alternative $j$ whose wide box is the only obstacle to the acceptance or the discard of some $k$ is never evaluated again, and the pair $(j,k)$ remains open forever. Study~1 in Section~\ref{sec:simulation} shows this stalling in two of four configurations. With the open-pair rule the number of evaluations is bounded on $\Gev$. For distinct $j,k$ let
+\[
+d_{jk}=\min_i\,(\mu_{k,i}-\mu_{j,i}),\qquad a_{jk}=\max_i\,(\mu_{j,i}-\mu_{k,i}+\varepsilon_i),\qquad g_{jk}=\max(d_{jk},a_{jk}),
+\]
+the margins by which $j$ dominates $k$ and by which $j$ fails to improve on $k$ by the tolerance, and let $\Delta_k=\min_{j\ne k}\min(g_{jk},g_{kj})$. Since $a_{jk}\ge\varepsilon_{\min}-d_{jk}$ with $\varepsilon_{\min}=\min_i\varepsilon_i$, every gap satisfies $g_{jk}\ge\varepsilon_{\min}/2$.
+
+\begin{theorem}\label{thm:termination}
+Suppose $\varepsilon_{\min}>0$, all costs are equal, and on $\Gev$ the width of every box after $n$ evaluations satisfies $w_k\le w(n)$ for a nonincreasing function $w$ with $w(n)\to0$. Let $n^*(x)=\min\{n:w(n)<x\}$. Then on $\Gev$ the procedure of Algorithm~\ref{alg:procedure} stops after at most
+\[
+\sum_{k=1}^K\max\{n_0,\ n^*(\Delta_k/2)+b\}\ \le\ K\max\{n_0,\ n^*(\varepsilon_{\min}/4)+b\}
+\]
+evaluations.
+\end{theorem}
+
+\begin{proof}
+On $\Gev$, $\Ub_j\le\mub_j+w_j$ and $\Lb_k\ge\mub_k-w_k$. If $w_j+w_k<d_{jk}$ then $U_{j,i}<L_{k,i}$ for every $i$, so $j\bdom k$; if $w_j+w_k<a_{jk}$ then $L_{j,i}>U_{k,i}-\varepsilon_i$ at the coordinate attaining $a_{jk}$. An open pair therefore has $w_j+w_k\ge g_{jk}$. When alternative $a$ is evaluated, it belongs to an open pair with some partner $c$, also a candidate, so $w_a\ge w_c$ and $2w_a\ge w_a+w_c\ge\Delta_a$. Thus $w(N_a)\ge\Delta_a/2$, so $N_a<n^*(\Delta_a/2)$ before each batch and $N_a<n^*(\Delta_a/2)+b$ after it.
+\end{proof}
+
+With unequal costs the same argument gives a bound that depends on the cost ratios. For the predictable plug-in Hoeffding sequence the width is deterministic and $n^*(x)=O\{x^{-2}\log(Km/\alpha)\log(1/x)(\log\log(1/x))^{2}\}$ (Section~\ref{S-sec:hoeffding} of the Supplementary Material), so the first bound has the form $\sum_k\Delta_k^{-2}\log(Km/\alpha)$ up to logarithmic factors, the form of the lower bound of \citet{auer2016}, whose gaps are defined differently. The second bound does not depend on the means: it is a budget, computable before the first evaluation, that suffices with probability at least $1-\alpha$ for every instance. With $\varepsilon_{\min}=0$ no such bound exists, because two alternatives with equal means can never be separated. For the betting sequence, whose width is random, we have no comparable bound.
+
+\subsection{Practical aspects}\label{sec:practical}
+
+An evaluation may be the average of several simulation runs; Assumption~A is preserved and fewer, less variable evaluations reduce the cost of the confidence sequences. Intervals are computed once per batch, which keeps the guarantee. The tolerance should be the smallest difference, in the units of each objective, that would change a decision; by Theorem~\ref{thm:validity} it determines when the procedure may stop but not what it may discard. The bounds $a_i,b_i$ must hold for every evaluation, and evaluations outside them are refused rather than clipped. The procedure is implemented in the R package \pkg{paretoinfer} \citep{paretoinfer}, which uses the confidence-sequence kernels of \pkg{seqbench} \citep{seqbench}; Section~\ref{S-sec:software} of the Supplementary Material shows the interface.

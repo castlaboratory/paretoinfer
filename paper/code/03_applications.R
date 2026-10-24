@@ -4,32 +4,31 @@
 source("paper/code/common.R")
 source("paper/code/app_binomial_methods.R")
 source("paper/code/app_inventory_model.R")
-R <- as.integer(Sys.getenv("PI_R", "50"))
+R <- as.integer(Sys.getenv("PI_R", "20"))
 dir.create("paper/results/cache", showWarnings = FALSE, recursive = TRUE)
 
 # Binomial intervals: n = 30, each evaluation averages b = 100 simulated studies.
 bin_truth <- binomial_truth(30)
 bin_sim <- make_binomial_sim(30, b = 100L)
 bin_design <- pareto_design(alternatives = rownames(bin_truth), objectives = c("miscoverage", "width"),
-                            bounds = c(0, 1), alpha = 0.05, epsilon = 0.005, max_evaluations = 4e4)
+                            bounds = c(0, 1), alpha = 0.05, epsilon = 0.005, max_evaluations = 1e5,
+                            cover = TRUE)
 bin_simulate <- function(alternative, n) {
   y <- bin_sim(match(alternative, bin_design$alternatives), n)
   data.frame(miscoverage = y[, 1], width = y[, 2])
 }
 
-# Inventory: 16 (s, S) policies; truth from 10^5 replications per policy.
+# Inventory: 16 (s, S) policies; exact truth from the Markov chain of levels.
 truth_file <- "paper/results/cache/inventory_truth.rds"
 if (!file.exists(truth_file)) {
-  set.seed(7)
-  inv_truth <- t(vapply(seq_len(nrow(policies)), function(k)
-    colMeans(simulate_policy(policies$s[k], policies$S[k], 1e5)), numeric(2)))
+  inv_truth <- t(vapply(seq_len(nrow(policies)), function(k) policy_exact(policies$s[k], policies$S[k]), numeric(2)))
   dimnames(inv_truth) <- list(rownames(policies), c("period_cost", "backlog"))
   saveRDS(inv_truth, truth_file)
 }
 inv_truth <- readRDS(truth_file)
 inv_design <- pareto_design(alternatives = rownames(policies), objectives = c("period_cost", "backlog"),
                             bounds = inv_bounds, alpha = 0.05, epsilon = c(1, 0.005),
-                            max_evaluations = 4e4)
+                            max_evaluations = 1e5, cover = TRUE)
 inv_simulate <- function(alternative, n) {
   k <- match(alternative, inv_design$alternatives)
   y <- simulate_policy(policies$s[k], policies$S[k], n)
@@ -53,7 +52,7 @@ for (an in names(apps)) {
 }
 
 # Repeated identifications: the same checks as Study 1, against the truth.
-for (an in names(apps)) {
+if (R > 0) for (an in names(apps)) {
   f <- sprintf("paper/results/%s_repeated.csv", an)
   if (file.exists(f)) next
   a <- apps[[an]]; mu <- a$truth

@@ -1,0 +1,57 @@
+\section{Proof of Proposition 1 and a remark on cycles with two objectives}\label{sec:proof-failure}
+
+Throughout, $\varepsilon_i=\varepsilon$, every box contains its mean and every box has width at most $\eta$ in every objective. If $\mub_j-\mub_k\le(\varepsilon-2\eta)\bm1$ componentwise, then
+\[
+\bm U_j-\bm L_k\le(\mub_j+\eta\bm1)-(\mub_k-\eta\bm1)\le\varepsilon\bm1,
+\]
+so $j$ certifiably $\epsb$-dominates $k$. Conversely, if $\mu_{j,i}-\mu_{k,i}>\varepsilon$ for some $i$, then $U_{j,i}-L_{k,i}\ge\mu_{j,i}-\mu_{k,i}>\varepsilon$ and $j$ is never certified to $\epsb$-dominate $k$. In each part below, every ordered pair falls into one of these two cases, and $\eta$ is half the smallest slack of the first case.
+
+\paragraph{(a)} The three mean vectors are distinct permutations of $(a,b,c)$ and have equal coordinate sums, so none dominates another and $\mathcal P=\{1,2,3\}$. For the pair $(1,2)$, $\mub_1-\mub_2=(a-c,\ b-a,\ c-b)$, whose largest component is $\max(b-a,c-b)<\varepsilon$; by cyclic symmetry the same holds for $(2,3)$ and $(3,1)$. With $\eta=\{\varepsilon-\max(b-a,c-b)\}/2$, alternative 1 certifiably $\epsb$-dominates 2, 2 dominates 3 and 3 dominates 1. In the reverse direction, $\mub_2-\mub_1=(c-a,\ a-b,\ b-c)$ has first component $c-a>\varepsilon$, so 2 never $\epsb$-dominates 1, and likewise for the other reversed pairs. There is no tie, and each alternative is certifiably $\epsb$-dominated by another: $\epsb$-elimination discards all three, whatever the tie-break.
+
+\paragraph{(b)} The points are mutually nondominated because $x_1<x_2<x_3$ and $y_1>y_2>y_3$. The differences are
+\begin{align*}
+\mub_1-\mub_2&=(x_1-x_2,\ y_1-y_2), & \mub_2-\mub_1&=(x_2-x_1,\ y_2-y_1),\\
+\mub_2-\mub_3&=(x_2-x_3,\ y_2-y_3), & \mub_3-\mub_2&=(x_3-x_2,\ y_3-y_2),\\
+\mub_3-\mub_1&=(x_3-x_1,\ y_3-y_1), & \mub_1-\mub_3&=(x_1-x_3,\ y_1-y_3).
+\end{align*}
+The first five have all components below $\varepsilon$ (negative components trivially, and $x_2-x_1\le x_3-x_1<\varepsilon$, $x_3-x_2<\varepsilon$, $y_1-y_2<\varepsilon$, $y_2-y_3<\varepsilon$), while $\mub_1-\mub_3$ has $y_1-y_3>\varepsilon$. Hence, for small $\eta$, $\{1,2\}$ and $\{2,3\}$ are certified $\epsb$-ties and 3 certifiably and one-directionally $\epsb$-dominates 1. Without a tie-break every alternative is $\epsb$-dominated by another and all are discarded. With the tie-break that keeps the earlier alternative of a tie in the order $1,2,3$, alternative 1 is discarded by 3, alternative 2 by 1 and alternative 3 by 2. The instance of Figure~\ref{M-fig:failure}(b) has $x=(0.30,0.34,0.38)$, $y=(0.50,0.44,0.38)$ and $\varepsilon=0.1$, with $\eta=0.01$.
+
+\paragraph{(c)} With $\varepsilon=0.1$: $\mub_2-\mub_1=(0.08,-0.15)$ and $\mub_3-\mub_2=(0.08,-0.15)$, so 2 certifiably $\epsb$-dominates 1 and 3 dominates 2 once $\eta<0.01$. All other ordered pairs have a component exceeding $\varepsilon$: $\mub_1-\mub_2=(-0.08,0.15)$, $\mub_2-\mub_3=(-0.08,0.15)$, $\mub_1-\mub_3=(-0.16,0.30)$, $\mub_3-\mub_1=(0.16,-0.30)$, and alternative 4 differs from every other by at least $0.2$ in the first objective and $0.25$ in the second, in opposite directions. Hence 1 and 2 are discarded and 3 and 4 survive. Neither covers 1: $\mu_{3,1}=0.46>0.30+0.1$ and $\mu_{4,2}=0.95>0.70+0.1$. The four points are mutually nondominated, so $\mathcal P=\{1,2,3,4\}$.
+
+\paragraph{Remark: no one-directional cycle of length three with two objectives.} Let three mutually nondominated alternatives satisfy $x_1<x_2<x_3$ and $y_1>y_2>y_3$, and suppose their $\epsb$-dominance relations form a directed cycle in which no pair is a tie. There are two orientations. If the cycle is $1\to2\to3\to1$, then $3\to1$ requires $x_3\le x_1+\varepsilon$; since $x_2\le x_3$ and $y_2\le y_1$, alternative 2 also $\epsb$-dominates 1, so $\{1,2\}$ is a tie, a contradiction. If the cycle is $1\to3\to2\to1$, then $1\to3$ requires $y_1\le y_3+\varepsilon$; since $y_2\le y_1$ and $x_2\le x_3$, alternative 2 $\epsb$-dominates 3, so $\{2,3\}$ is a tie, again a contradiction. Part (b) of the proposition shows that the tie-break re-creates the failure.
+
+\section{Width of the Hoeffding confidence sequence and planning horizons}\label{sec:hoeffding}
+
+The predictable plug-in Hoeffding sequence of \citet[Proposition~1]{waudbysmith2024} at level $\alpha'=\alpha/(Km)$ uses $\lambda_t=\min\{1,\sqrt{8A/(t\log(t+1))}\}$ with $A=\log(2/\alpha')$, and after $n$ evaluations reports the interval centred at $\sum_t\lambda_tX_t/\sum_t\lambda_t$ with half-width
+\[
+h(n)=\frac{A+\sum_{t\le n}\lambda_t^2/8}{\sum_{t\le n}\lambda_t}.
+\]
+The half-width does not depend on the data. As $n\to\infty$, $\lambda_t=\sqrt{8A/(t\log(t+1))}$ for all but finitely many $t$, $\sum_{t\le n}\lambda_t\sim2\sqrt{8An/\log n}$ and $\sum_{t\le n}\lambda_t^2/8=A\sum_{t\le n}\{t\log(t+1)\}^{-1}\sim A\log\log n$. Hence
+\[
+h(n)\sim\Bigl(\frac{A\log n}{32\,n}\Bigr)^{1/2}(1+\log\log n),
+\]
+the box width is at most $w(n)=2h(n)$, and inverting gives $n^*(x)=O\{x^{-2}A\log(1/x)(\log\log(1/x))^2\}$ as $x\to0$. Table~\ref{tab:horizon} reports the exact values of $n^*(\varepsilon/4)$ and of the horizon $K\{n^*(\varepsilon/4)+b\}$ of Theorem~\ref{M-thm:termination}, computed from the formula above with $b=5$ and $\alpha=0.05$.
+
+\begin{table}[ht]
+\centering
+\caption{Sufficient budgets of Theorem~\ref{M-thm:termination} for the predictable plug-in Hoeffding sequence, $\alpha=0.05$, $b=5$: number of evaluations per alternative $n^*(\varepsilon/4)$ and total horizon $K\{n^*(\varepsilon/4)+b\}$.}
+\label{tab:horizon}
+\small
+\input{tables/tabS1_horizon}
+\end{table}
+
+\section{Software}\label{sec:software}
+
+The procedure is implemented in the R package \pkg{paretoinfer}. A minimal identification with a user-supplied simulator \texttt{simulate(alternative, n)}, which returns $n$ evaluations of one alternative as a data frame with one column per objective, is
+\begin{verbatim}
+library(paretoinfer)
+design <- pareto_design(alternatives = c("A1", "A2", "A3", "A4"),
+                        objectives = c("y1", "y2"), bounds = c(0, 1),
+                        alpha = 0.05, epsilon = 0.05, cover = TRUE,
+                        max_evaluations = 1e5)
+state <- pareto_run(design, simulate, batch = 5, initial = 5)
+plausible_pareto_set(state)   # plausible, accepted, discarded, representatives
+pareto_report(state)          # design, sets, boxes, assumptions, versions
+autoplot(state)               # confidence boxes coloured by status
+\end{verbatim}
+When evaluations are produced elsewhere, \texttt{initialize\_pareto()}, \texttt{update\_objectives()} and \texttt{choose\_next\_evaluation()} drive the same loop by hand. Evaluations outside the declared bounds, missing values and unknown alternatives are refused with an error rather than repaired. A stopped identification accepts no further evaluations, so that a report always refers to a design fixed in advance.

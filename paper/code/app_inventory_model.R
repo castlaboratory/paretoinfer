@@ -39,3 +39,25 @@ simulate_policy <- function(s, S, n, T = 60L, warmup = 20L) {
 make_inventory_sim <- function() {
   function(k, n) simulate_policy(policies$s[k], policies$S[k], n)
 }
+
+# Exact objectives: the level at the start of a period is a Markov chain on
+# s..S started at S, so the expected average cost and backlog fraction over
+# periods warmup + 1, ..., warmup + T are finite sums.
+policy_exact <- function(s, S, T = 60L, warmup = 20L) {
+  lev <- s:S; p <- c(numeric(length(lev) - 1L), 1)   # start at S
+  dd <- 0:50; pd <- stats::dbinom(dd, 50, 0.5)
+  cost <- 0; back <- 0
+  for (t in seq_len(T + warmup)) {
+    p_new <- numeric(length(lev)); ec <- 0; eb <- 0
+    for (a in seq_along(lev)) if (p[a] > 0) {
+      I <- lev[a] - dd; q <- ifelse(I < s, S - I, 0)
+      c_t <- ifelse(q > 0, 32 + 3 * q, 0) + pmax(I, 0) + 5 * pmax(-I, 0)
+      ec <- ec + p[a] * sum(pd * c_t); eb <- eb + p[a] * sum(pd * (I < 0))
+      nxt <- ifelse(I < s, S, I) - s + 1L
+      for (u in seq_along(nxt)) p_new[nxt[u]] <- p_new[nxt[u]] + p[a] * pd[u]
+    }
+    if (t > warmup) { cost <- cost + ec; back <- back + eb }
+    p <- p_new
+  }
+  c(period_cost = cost / T, backlog = back / T)
+}

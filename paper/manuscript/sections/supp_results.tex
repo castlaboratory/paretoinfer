@@ -1,0 +1,39 @@
+\section{Additional results of Study 2}\label{sec:study2}
+
+Table~\ref{tab:study2} reports, for every cell of Study~2, the median and the quartiles of the number of evaluations until stopping for the open-pair and the uniform allocation, and, for $\varepsilon$-discarding with its own allocation, the percentage of replications that stopped within $3\times10^4$ evaluations and the percentage with frontier loss. The first nine rows are the main grid of Figure~\ref{M-fig:efficiency}. No replication of any method produced a false statement.
+
+\begin{table}[ht]
+\centering
+\caption{Study~2: median (quartiles) of the number of evaluations; 30 instances per cell, budget $3\times10^4$.}
+\label{tab:study2}
+\footnotesize
+\input{tables/tabS2_study2}
+\end{table}
+
+\section{Details of the applications}\label{sec:apps}
+
+\paragraph{Binomial intervals.} The eight intervals have nominal level $0.95$ and are truncated to $[0,1]$. Wald, Wilson and Agresti--Coull follow \citet{agresti1998}; Wilson-cc is method~4 of \citet{newcombe1998}; Clopper--Pearson uses beta quantiles \citep{clopper1934}; Jeffreys is the equal-tailed Beta$(x+1/2,n-x+1/2)$ interval with the modification of \citet{brown2001} at $x=0$ and $x=n$; the arcsine interval uses $\tilde p=(x+3/8)/(n+3/4)$; and the likelihood-ratio interval inverts the binomial deviance at $\chi^2_{1,0.95}$. With $p\sim U(0,1)$, $X$ is uniform on $\{0,\dots,n\}$ and $p\mid X=x\sim\mathrm{Beta}(x+1,n-x+1)$, so the average coverage of an interval $[l(x),u(x)]$ is $(n+1)^{-1}\sum_x\{F_x(u(x))-F_x(l(x))\}$, where $F_x$ is that beta distribution function, and the average width is $(n+1)^{-1}\sum_x\{u(x)-l(x)\}$. Table~\ref{tab:binomial} gives these values together with the final statements of the identification of Section~\ref{M-sec:app-binomial}.
+
+\begin{table}[ht]
+\centering
+\caption{Binomial intervals, $n=30$: exact average miscoverage and width over $p\sim U(0,1)$, membership of the Pareto set, number of evaluations (each the average of 100 simulated studies) and final statements after $10^5$ evaluations.}
+\label{tab:binomial}
+\footnotesize
+\input{tables/tabS3_binomial}
+\end{table}
+
+\paragraph{Inventory system.} Write $J_t\in\{s,\dots,S\}$ for the inventory level at the start of period $t$, after the arrival of any order, with $J_1=S$. The level at the end of the period is $I_t=J_t-D_t$, the period cost is $32\,\mathbb{1}\{I_t<s\}+3(S-I_t)\mathbb{1}\{I_t<s\}+\max(I_t,0)+5\max(-I_t,0)$, and $J_{t+1}=S$ if $I_t<s$ and $J_{t+1}=I_t$ otherwise. The distribution of $J_t$ is propagated exactly through the 80 periods, which gives the expected average cost and backlog fraction over periods 21 to 80. Since $J_t\ge 10$ and $D_t\le 50$ for every policy, the cost is at most $32+3(120-10+50)+120+5\cdot40=832$. Table~\ref{tab:inventory} lists the exact values and the final statements of Section~\ref{M-sec:app-inventory}. The four policies with $s=40$ run out of stock in fewer than one period in $10^6$, so their backlog fractions are equal for every practical purpose; the Pareto set contains $(40,80)$ only because its backlog fraction is smaller than that of $(40,100)$ by $4\times10^{-10}$. A Monte Carlo estimate from $10^5$ replications per policy records no backlog for three of these policies and would declare $(40,100)$ Pareto-optimal; this is why we use the exact values.
+
+\begin{table}[ht]
+\centering
+\caption{$(s,S)$ inventory policies: exact average cost per period and backlog fraction, membership of the Pareto set, number of evaluations and final statements after $10^5$ evaluations.}
+\label{tab:inventory}
+\footnotesize
+\input{tables/tabS4_inventory}
+\end{table}
+
+%APPREPSUPP%
+
+\section{Reproducibility}\label{sec:repro}
+
+The archive contains the R scripts in the order in which they are run: \texttt{00\_install.R} installs the version of \pkg{paretoinfer} used here into a private library; \texttt{01\_validity.R}, \texttt{01b\_validity\_ties.R} and \texttt{02\_efficiency.R} run the simulation studies; \texttt{03\_applications.R} runs the applications; \texttt{04\_planning.R} computes the horizons of Table~\ref{tab:horizon}; and \texttt{fig1\_failure.R}, \texttt{fig\_studies.R}, \texttt{fig\_apps.R} and \texttt{supp\_tables.R} produce every figure and table. Shared code is in \texttt{common.R}, \texttt{app\_binomial\_methods.R} and \texttt{app\_inventory\_model.R}. Every script sets its seeds and the studies use parallel streams of the L'Ecuyer generator; because the streams are assigned to worker processes, the results are reproduced exactly with the same number of cores, four in our runs. The number of replications is read from the environment variable \texttt{PI\_R}, which allows a quick run with fewer replications.

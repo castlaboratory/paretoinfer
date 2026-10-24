@@ -1,0 +1,37 @@
+cell  1 K= 5 m=2 eps=0.025 rho=+0.0 betting             adaptive                         30 s  median n   1568  identified 1.00  loss 0.00
+cell  1 K= 5 m=2 eps=0.025 rho=+0.0 betting             uniform                          28 s  median n   2138  identified 1.00  loss 0.00
+cell  1 K= 5 m=2 eps=0.025 rho=+0.0 betting             epsilon discarding (0.1.0)      140 s  median n   6612  identified 0.63  loss 0.00
+cell  2 K=10 m=2 eps=0.025 rho=+0.0 betting             adaptive                        111 s  median n   4390  identified 1.00  loss 0.00
+cell  2 K=10 m=2 eps=0.025 rho=+0.0 betting             uniform                          67 s  median n   6640  identified 1.00  loss 0.00
+cell  2 K=10 m=2 eps=0.025 rho=+0.0 betting             epsilon discarding (0.1.0)      277 s  median n  30000  identified 0.33  loss 0.00
+cell  3 K=20 m=2 eps=0.025 rho=+0.0 betting             adaptive                        552 s  median n  12175  identified 1.00  loss 0.00
+cell  3 K=20 m=2 eps=0.025 rho=+0.0 betting             uniform                         278 s  median n  16682  identified 1.00  loss 0.00
+cell  3 K=20 m=2 eps=0.025 rho=+0.0 betting             epsilon discarding (0.1.0)      626 s  median n  30000  identified 0.00  loss 0.00
+cell  4 K= 5 m=2 eps=0.050 rho=+0.0 betting             adaptive                         19 s  median n   1250  identified 1.00  loss 0.00
+cell  4 K= 5 m=2 eps=0.050 rho=+0.0 betting             uniform                          18 s  median n   2240  identified 1.00  loss 0.00
+cell  4 K= 5 m=2 eps=0.050 rho=+0.0 betting             epsilon discarding (0.1.0)       65 s  median n   2305  identified 0.90  loss 0.00
+cell  5 K=10 m=2 eps=0.050 rho=+0.0 betting             adaptive                         76 s  median n   3612  identified 1.00  loss 0.00
+cell  5 K=10 m=2 eps=0.050 rho=+0.0 betting             uniform                          50 s  median n   4960  identified 1.00  loss 0.00
+cell  5 K=10 m=2 eps=0.050 rho=+0.0 betting             epsilon discarding (0.1.0)      223 s  median n  24888  identified 0.53  loss 0.03
+cell  6 K=20 m=2 eps=0.050 rho=+0.0 betting             adaptive                        403 s  median n   8388  identified 1.00  loss 0.00
+cell  6 K=20 m=2 eps=0.050 rho=+0.0 betting             uniform                         207 s  median n  13512  identified 1.00  loss 0.00
+cell  6 K=20 m=2 eps=0.050 rho=+0.0 betting             epsilon discarding (0.1.0)      635 s  median n  30000  identified 0.23  loss 0.17
+cell  7 K= 5 m=2 eps=0.100 rho=+0.0 betting             adaptive                         13 s  median n    890  identified 1.00  loss 0.00
+cell  7 K= 5 m=2 eps=0.100 rho=+0.0 betting             uniform                           9 s  median n   1092  identified 1.00  loss 0.00
+cell  7 K= 5 m=2 eps=0.100 rho=+0.0 betting             epsilon discarding (0.1.0)       49 s  median n   1035  identified 0.97  loss 0.03
+cell  8 K=10 m=2 eps=0.100 rho=+0.0 betting             adaptive                         54 s  median n   2362  identified 1.00  loss 0.00
+cell  8 K=10 m=2 eps=0.100 rho=+0.0 betting             uniform                          28 s  median n   2885  identified 1.00  loss 0.00
+cell  8 K=10 m=2 eps=0.100 rho=+0.0 betting             epsilon discarding (0.1.0)      138 s  median n   3032  identified 0.83  loss 0.03
+cell  9 K=20 m=2 eps=0.100 rho=+0.0 betting             adaptive                        263 s  median n   5020  identified 1.00  loss 0.00
+cell  9 K=20 m=2 eps=0.100 rho=+0.0 betting             uniform                         113 s  median n   6225  identified 1.00  loss 0.00
+cell  9 K=20 m=2 eps=0.100 rho=+0.0 betting             epsilon discarding (0.1.0)      375 s  median n   8178  identified 0.73  loss 0.43
+cell 10 K=10 m=3 eps=0.050 rho=+0.0 betting             adaptive                        119 s  median n   5018  identified 1.00  loss 0.00
+cell 10 K=10 m=3 eps=0.050 rho=+0.0 betting             uniform                          87 s  median n   7835  identified 1.00  loss 0.00
+cell 11 K=10 m=2 eps=0.050 rho=-0.6 betting             adaptive                         88 s  median n   4135  identified 1.00  loss 0.00
+cell 11 K=10 m=2 eps=0.050 rho=-0.6 betting             uniform                          49 s  median n   4795  identified 1.00  loss 0.00
+cell 12 K=10 m=2 eps=0.050 rho=+0.6 betting             adaptive                         86 s  median n   3972  identified 1.00  loss 0.00
+cell 12 K=10 m=2 eps=0.050 rho=+0.6 betting             uniform                          49 s  median n   4962  identified 1.00  loss 0.00
+cell 13 K=10 m=2 eps=0.050 rho=+0.0 empirical_bernstein adaptive                        133 s  median n   6455  identified 1.00  loss 0.00
+cell 13 K=10 m=2 eps=0.050 rho=+0.0 empirical_bernstein uniform                          59 s  median n   6572  identified 1.00  loss 0.00
+cell 14 K=10 m=2 eps=0.050 rho=+0.0 hoeffding           adaptive                        615 s  median n  30000  identified 0.00  loss 0.00
+cell 14 K=10 m=2 eps=0.050 rho=+0.0 hoeffding           uniform                         231 s  median n  30015  identified 0.00  loss 0.00

@@ -1,0 +1,8 @@
+ties   paretoinfer 0.2.0                25 s  any error 0.000  loss 0.000
+ties   epsilon discarding (0.1.0)       62 s  any error 0.000  loss 0.000
+ties   repeated t intervals             14 s  any error 0.000  loss 0.000
+ties   no union bound                   39 s  any error 0.000  loss 0.000
+boundary paretoinfer 0.2.0              1928 s  any error 0.000  loss 0.000
+boundary epsilon discarding (0.1.0)      333 s  any error 0.000  loss 0.000
+boundary repeated t intervals            335 s  any error 0.000  loss 0.000
+boundary no union bound                 1062 s  any error 0.000  loss 0.000
