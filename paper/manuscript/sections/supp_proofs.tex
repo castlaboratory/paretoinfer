@@ -30,7 +30,11 @@ The half-width does not depend on the data. As $n\to\infty$, $\lambda_t=\sqrt{8A
 \[
 h(n)\sim\Bigl(\frac{A\log n}{32\,n}\Bigr)^{1/2}(1+\log\log n),
 \]
-the box width is at most $w(n)=2h(n)$, and inverting gives $n^*(x)=O\{x^{-2}A\log(1/x)(\log\log(1/x))^2\}$ as $x\to0$. Table~\ref{tab:horizon} reports the exact values of $n^*(\varepsilon/4)$ and of the horizon $K\{n^*(\varepsilon/4)+b\}$ of Theorem~\ref{M-thm:termination}, computed from the formula above with $b=5$ and $\alpha=0.05$.
+the box width is at most $w(n)=2h(n)$, and inverting gives
+\[
+n^*(x)=O\{x^{-2}A\log(1/x)(\log\log(1/x))^2\}\qquad(x\to0).
+\]
+ Table~\ref{tab:horizon} reports the exact values of $n^*(\varepsilon/4)$ and of the horizon $K\{n^*(\varepsilon/4)+b\}$ of Theorem~\ref{M-thm:termination}, computed from the formula above with $b=5$ and $\alpha=0.05$.
 
 \begin{table}[ht]
 \centering
@@ -50,7 +54,7 @@ design <- pareto_design(alternatives = c("A1", "A2", "A3", "A4"),
                         alpha = 0.05, epsilon = 0.05, cover = TRUE,
                         max_evaluations = 1e5)
 state <- pareto_run(design, simulate, batch = 5, initial = 5)
-plausible_pareto_set(state)   # plausible, accepted, discarded, representatives
+plausible_pareto_set(state)  # sets and representatives
 pareto_report(state)          # design, sets, boxes, assumptions, versions
 autoplot(state)               # confidence boxes coloured by status
 \end{verbatim}

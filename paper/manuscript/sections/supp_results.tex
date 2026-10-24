@@ -6,7 +6,7 @@ Table~\ref{tab:study2} reports, for every cell of Study~2, the median and the qu
 \centering
 \caption{Study~2: median (quartiles) of the number of evaluations; 30 instances per cell, budget $3\times10^4$.}
 \label{tab:study2}
-\footnotesize
+\scriptsize
 \input{tables/tabS2_study2}
 \end{table}
 
@@ -32,8 +32,7 @@ Table~\ref{tab:study2} reports, for every cell of Study~2, the median and the qu
 \input{tables/tabS4_inventory}
 \end{table}
 
-%APPREPSUPP%
 
 \section{Reproducibility}\label{sec:repro}
 
-The archive contains the R scripts in the order in which they are run: \texttt{00\_install.R} installs the version of \pkg{paretoinfer} used here into a private library; \texttt{01\_validity.R}, \texttt{01b\_validity\_ties.R} and \texttt{02\_efficiency.R} run the simulation studies; \texttt{03\_applications.R} runs the applications; \texttt{04\_planning.R} computes the horizons of Table~\ref{tab:horizon}; and \texttt{fig1\_failure.R}, \texttt{fig\_studies.R}, \texttt{fig\_apps.R} and \texttt{supp\_tables.R} produce every figure and table. Shared code is in \texttt{common.R}, \texttt{app\_binomial\_methods.R} and \texttt{app\_inventory\_model.R}. Every script sets its seeds and the studies use parallel streams of the L'Ecuyer generator; because the streams are assigned to worker processes, the results are reproduced exactly with the same number of cores, four in our runs. The number of replications is read from the environment variable \texttt{PI\_R}, which allows a quick run with fewer replications.
+The archive contains the R scripts in the order in which they are run: \texttt{00\_install.R} installs the \pkg{paretoinfer} version used here into a private library; \texttt{01\_validity.R}, \texttt{01b\_validity\_ties.R} and \texttt{02\_efficiency.R} run the simulation studies; \texttt{03\_applications.R} runs the applications; \texttt{04\_planning.R} computes the horizons of Table~\ref{tab:horizon}; and \texttt{fig1\_failure.R}, \texttt{fig\_studies.R}, \texttt{fig\_apps.R} and \texttt{supp\_tables.R} produce every figure and table. Shared code is in \texttt{common.R}, \texttt{app\_binomial\_methods.R} and \texttt{app\_inventory\_model.R}. Every script sets its seeds and the studies use parallel streams of the L'Ecuyer generator; because the streams are assigned to worker processes, the results are reproduced exactly with the same number of cores, four in our runs. The number of replications is read from the environment variable \texttt{PI\_R}, which allows a quick run with fewer replications.
