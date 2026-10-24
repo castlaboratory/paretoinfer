@@ -28,7 +28,7 @@ plausible alternative is accepted or the budget is exhausted.
 }
 \examples{
 design <- pareto_design(alternatives = 4, objectives = 2, bounds = c(0, 1), epsilon = 0.05,
-                        max_evaluations = 400)
+                        max_evaluations = 200)
 means <- tibble::tribble(
   ~alternative, ~y1, ~y2,
   "A1",         0.2, 0.7,
@@ -42,6 +42,6 @@ sim <- function(alternative, n, h = 0.1) {
                  y2 = runif(n, mu$y2 - h, mu$y2 + h))
 }
 set.seed(1)
-state <- design |> pareto_run(sim)
+state <- design |> pareto_run(sim, batch = 5)
 state
 }

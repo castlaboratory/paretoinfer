@@ -62,7 +62,7 @@ choose_next_evaluation <- function(state, n = 1L) {
 #' @export
 #' @examples
 #' design <- pareto_design(alternatives = 4, objectives = 2, bounds = c(0, 1), epsilon = 0.05,
-#'                         max_evaluations = 400)
+#'                         max_evaluations = 200)
 #' means <- tibble::tribble(
 #'   ~alternative, ~y1, ~y2,
 #'   "A1",         0.2, 0.7,
@@ -76,7 +76,7 @@ choose_next_evaluation <- function(state, n = 1L) {
 #'                  y2 = runif(n, mu$y2 - h, mu$y2 + h))
 #' }
 #' set.seed(1)
-#' state <- design |> pareto_run(sim)
+#' state <- design |> pareto_run(sim, batch = 5)
 #' state
 pareto_run <- function(design, simulate, batch = 1L, initial = 2L, max_rounds = 1e5) {
   assert_design(design)
