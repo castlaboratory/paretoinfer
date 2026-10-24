@@ -13,21 +13,21 @@ s1$error <- with(s1, false_discard | false_accept | false_optimal | cover_fail)
 scen <- c("flat", "close", "boundary", "cycle", "ties", "chain"); scen <- scen[scen %in% s1$scenario]
 procs <- c("paretoinfer 0.2.0", "epsilon discarding (0.1.0)", "repeated t intervals", "no union bound")
 proc_tex <- c("proposed", "$\\varepsilon$-discarding", "repeated $t$", "no correction")
+pct <- function(x) sprintf("%.1f", 100 * mean(x))
 rows <- character()
 for (sc in scen) {
-  first <- TRUE
-  for (p in seq_along(procs)) {
-    d <- s1[s1$scenario == sc & s1$procedure == procs[p], ]
-    if (!nrow(d)) next
-    rows <- c(rows, sprintf("%s & %s & %s & %s & %.0f & %.0f \\\\",
-                            if (first) sc else "", proc_tex[p], cp(sum(d$error), nrow(d)),
-                            cp(sum(d$frontier_loss), nrow(d)), 100 * mean(d$identified), median(d$n_evaluations)))
-    first <- FALSE
-  }
-  if (sc != scen[length(scen)]) rows <- c(rows, "\\addlinespace")
+  cells <- vapply(procs, function(p) {
+    d <- s1[s1$scenario == sc & s1$procedure == p, ]
+    ev <- sprintf("%.0f", median(d$n_evaluations))
+    if (mean(d$identified) < 1) ev <- sprintf("%s (%.1f)", ev, 100 * mean(d$identified))
+    sprintf("%s & %s & %s", pct(d$error), pct(d$frontier_loss), ev)
+  }, character(1))
+  rows <- c(rows, paste0(sc, " & ", paste(cells, collapse = " & "), " \\\\"))
 }
-writeLines(c("\\begin{tabular}{llrrrr}", "\\toprule",
-             "Configuration & Method & Error (\\%) & Frontier loss (\\%) & Stopped (\\%) & Evaluations \\\\",
+hdr <- paste0(" & ", paste(sprintf("\\multicolumn{3}{c}{%s}", proc_tex), collapse = " & "), " \\\\")
+cm <- paste(sprintf("\\cmidrule(lr){%d-%d}", 3 * (0:3) + 2, 3 * (0:3) + 4), collapse = "")
+sub <- paste0("Configuration", strrep(" & Err. & Loss & Eval.", 4), " \\\\")
+writeLines(c("\\setlength{\\tabcolsep}{3pt}", "\\begin{tabular}{l*{4}{rrr}}", "\\toprule", hdr, cm, sub,
              "\\midrule", rows, "\\bottomrule", "\\end{tabular}"),
            "paper/manuscript/tables/tab1_validity.tex")
 

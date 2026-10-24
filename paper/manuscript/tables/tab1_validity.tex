@@ -1,35 +1,15 @@
-\begin{tabular}{llrrrr}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{l*{4}{rrr}}
 \toprule
-Configuration & Method & Error (\%) & Frontier loss (\%) & Stopped (\%) & Evaluations \\
+ & \multicolumn{3}{c}{proposed} & \multicolumn{3}{c}{$\varepsilon$-discarding} & \multicolumn{3}{c}{repeated $t$} & \multicolumn{3}{c}{no correction} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}
+Configuration & Err. & Loss & Eval. & Err. & Loss & Eval. & Err. & Loss & Eval. & Err. & Loss & Eval. \\
 \midrule
-flat & proposed & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 1390 \\
- & $\varepsilon$-discarding & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 0 & 10000 \\
- & repeated $t$ & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 532 \\
- & no correction & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 935 \\
-\addlinespace
-close & proposed & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 3268 \\
- & $\varepsilon$-discarding & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 0 & 10000 \\
- & repeated $t$ & 3.5 (1.4, 7.1) & 0.5 (0.0, 2.8) & 100 & 1260 \\
- & no correction & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 2185 \\
-\addlinespace
-boundary & proposed & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 99 & 4982 \\
- & $\varepsilon$-discarding & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 1390 \\
- & repeated $t$ & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 1555 \\
- & no correction & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 3322 \\
-\addlinespace
-cycle & proposed & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 225 \\
- & $\varepsilon$-discarding & 0.0 (0.0, 1.8) & 100.0 (98.2, 100.0) & 100 & 730 \\
- & repeated $t$ & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 20 \\
- & no correction & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 145 \\
-\addlinespace
-ties & proposed & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 230 \\
- & $\varepsilon$-discarding & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 545 \\
- & repeated $t$ & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 20 \\
- & no correction & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 155 \\
-\addlinespace
-chain & proposed & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 230 \\
- & $\varepsilon$-discarding & 0.0 (0.0, 1.8) & 1.5 (0.3, 4.3) & 2 & 10000 \\
- & repeated $t$ & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 20 \\
- & no correction & 0.0 (0.0, 1.8) & 0.0 (0.0, 1.8) & 100 & 150 \\
+flat & 0.0 & 0.0 & 1390 & 0.0 & 0.0 & 10000 (0.0) & 0.0 & 0.0 & 532 & 0.0 & 0.0 & 935 \\
+close & 0.0 & 0.0 & 3268 & 0.0 & 0.0 & 10000 (0.0) & 3.5 & 0.5 & 1260 & 0.0 & 0.0 & 2185 \\
+boundary & 0.0 & 0.0 & 4982 (99.0) & 0.0 & 0.0 & 1390 & 0.0 & 0.0 & 1555 & 0.0 & 0.0 & 3322 (99.5) \\
+cycle & 0.0 & 0.0 & 225 & 0.0 & 100.0 & 730 & 0.0 & 0.0 & 20 & 0.0 & 0.0 & 145 \\
+ties & 0.0 & 0.0 & 230 & 0.0 & 0.0 & 545 & 0.0 & 0.0 & 20 & 0.0 & 0.0 & 155 \\
+chain & 0.0 & 0.0 & 230 & 0.0 & 1.5 & 10000 (1.5) & 0.0 & 0.0 & 20 & 0.0 & 0.0 & 150 \\
 \bottomrule
 \end{tabular}
